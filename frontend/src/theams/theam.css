@@ -1,0 +1,101 @@
+:root {
+  --primary: #6366F1;
+  --secondary: #22C55E;
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --text: #E2E8F0;
+  --text-secondary: #94A3B8;
+}
+
+/* Body */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar */
+.navbar-custom {
+  background-color: var(--surface) !important;
+}
+
+.navbar-custom .navbar-brand {
+  color: var(--primary) !important;
+  font-weight: bold;
+}
+
+.navbar-custom .nav-link {
+  color: var(--text-secondary) !important;
+}
+
+.navbar-custom .nav-link:hover {
+  color: var(--primary) !important;
+}
+
+/* Buttons */
+.btn-primary-custom {
+  background-color: var(--primary);
+  color: var(--text);
+  border: none;
+}
+
+.btn-primary-custom:hover {
+  background-color: var(--secondary);
+}
+
+.btn-success-custom {
+  background-color: var(--secondary);
+  color: var(--text);
+  border: none;
+}
+
+.btn-success-custom:hover {
+  background-color: var(--primary);
+}
+
+/* Cards */
+.custom-card {
+  background-color: var(--surface);
+  color: var(--text);
+  border: none;
+  border-radius: 0.5rem;
+}
+
+/* Text styles */
+.text-accent {
+  color: var(--secondary);
+}
+
+.text-secondary-custom {
+  color: var(--text-secondary);
+}
+
+/* Inputs */
+.custom-input {
+  background-color: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--text-secondary);
+}
+
+.custom-input:focus {
+  border-color: var(--primary);
+  box-shadow: none;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+
+@media (min-width: 992px) {
+  .navbar-nav .nav-item {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+
+
+/* Footer */
+footer {
+  background-color: var(--surface);
+  color: var(--text-secondary);
+}

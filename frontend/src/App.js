@@ -1,12 +1,13 @@
-import logo from './logo.svg';
+
 import './App.css';
+import { BrowserRouter } from "react-router-dom";
+import Home from './landing-page-componets/Home';
 
 function App() {
   return (
-    <div className="container mt-5">
-      <h1 className="text-primary">Job Posting Platform</h1>
-      <button className="btn btn-success">Get Started</button>
-    </div>
+ <BrowserRouter>
+      <Home/>
+</BrowserRouter>
   );
 }
 
