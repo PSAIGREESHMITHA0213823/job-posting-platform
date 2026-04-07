@@ -5,8 +5,9 @@ const api = axios.create({
 });
 
 // Attach token to every request automatically
+// ✅ FIXED: use 'token' — same key that Login.js stores after login
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('adminToken');
+  const token = localStorage.getItem('token'); // was 'adminToken' — wrong key
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -18,7 +19,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('adminToken');
+      localStorage.removeItem('token');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -53,10 +54,6 @@ export const adminApi = {
   // Settings
   getSettings: () => api.get('/admin/settings'),
   updateSettings: (data) => api.put('/admin/settings', data),
-
-  // Auth
-  login: (credentials) => api.post('/admin/login', credentials),
-  logout: () => api.post('/admin/logout'),
 };
 
 export default api;

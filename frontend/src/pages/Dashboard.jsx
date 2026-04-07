@@ -1,369 +1,250 @@
-// import React, { useState, useEffect } from 'react';
-// import {
-//   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-//   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
-// } from 'recharts';
-// import StatsCard from '../components/StatsCard';
-// import { adminApi } from '../api/admin';
-// import { Building2, Users, Briefcase, FileText, DollarSign } from 'lucide-react';
-
-// const Dashboard = () => {
-//   const [loading, setLoading] = useState(true);
-//   const [dashboardData, setDashboardData] = useState({
-//     users: { total: 0, employees: 0, managers: 0 },
-//     companies: { total: 0, verified: 0 },
-//     jobs: { total: 0, active: 0 },
-//     applications: { total: 0, hired: 0 },
-//     revenue: { total_revenue: 0, total_payments: 0 },
-//     monthly_revenue: []
-//   });
-
-//   useEffect(() => {
-//     fetchDashboardData();
-//   }, []);
-
-//   const fetchDashboardData = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await adminApi.getDashboard();
-//       if (response.data.success) {
-//         setDashboardData(response.data.data);
-//       }
-//     } catch (error) {
-//       console.error('Error fetching dashboard:', error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const statsCards = [
-//     { title: 'Total Users', value: dashboardData.users.total, icon: <Users size={28} />, color: '#2196F3', subtitle: `${dashboardData.users.employees} employees, ${dashboardData.users.managers} managers` },
-//     { title: 'Companies', value: dashboardData.companies.total, icon: <Building2 size={28} />, color: '#4CAF50', subtitle: `${dashboardData.companies.verified} verified` },
-//     { title: 'Job Postings', value: dashboardData.jobs.total, icon: <Briefcase size={28} />, color: '#FF9800', subtitle: `${dashboardData.jobs.active} active` },
-//     { title: 'Applications', value: dashboardData.applications.total, icon: <FileText size={28} />, color: '#9C27B0', subtitle: `${dashboardData.applications.hired} hired` },
-//     { title: 'Revenue', value: `$${parseFloat(dashboardData.revenue.total_revenue).toLocaleString()}`, icon: <DollarSign size={28} />, color: '#E91E63', subtitle: `${dashboardData.revenue.total_payments} payments` },
-//   ];
-
-//   const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
-
-//   if (loading) {
-//     return (
-//       <div className="text-center py-5">
-//         <div className="spinner-border text-primary" role="status">
-//           <span className="visually-hidden">Loading...</span>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div>
-//       <h1 className="mb-4">Dashboard Overview</h1>
-      
-//       <div className="stats-grid">
-//         {statsCards.map((stat, index) => (
-//           <StatsCard key={index} {...stat} />
-//         ))}
-//       </div>
-
-//       <div className="row mt-4">
-//         <div className="col-md-8 mb-4">
-//           <div className="card">
-//             <div className="card-header bg-white">
-//               <h5 className="mb-0">Monthly Revenue Trend</h5>
-//             </div>
-//             <div className="card-body">
-//               <ResponsiveContainer width="100%" height={300}>
-//                 <LineChart data={dashboardData.monthly_revenue}>
-//                   <CartesianGrid strokeDasharray="3 3" />
-//                   <XAxis dataKey="month" />
-//                   <YAxis />
-//                   <Tooltip formatter={(value) => `$${value}`} />
-//                   <Legend />
-//                   <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
-//                 </LineChart>
-//               </ResponsiveContainer>
-//             </div>
-//           </div>
-//         </div>
-        
-//         <div className="col-md-4 mb-4">
-//           <div className="card">
-//             <div className="card-header bg-white">
-//               <h5 className="mb-0">Quick Stats</h5>
-//             </div>
-//             <div className="card-body">
-//               <div className="mb-3">
-//                 <label className="text-muted">Active Jobs Rate</label>
-//                 <div className="progress">
-//                   <div 
-//                     className="progress-bar bg-success" 
-//                     style={{ width: `${(dashboardData.jobs.active / dashboardData.jobs.total) * 100}%` }}
-//                   >
-//                     {Math.round((dashboardData.jobs.active / dashboardData.jobs.total) * 100)}%
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="mb-3">
-//                 <label className="text-muted">Hired Rate</label>
-//                 <div className="progress">
-//                   <div 
-//                     className="progress-bar bg-info" 
-//                     style={{ width: `${(dashboardData.applications.hired / dashboardData.applications.total) * 100}%` }}
-//                   >
-//                     {Math.round((dashboardData.applications.hired / dashboardData.applications.total) * 100)}%
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="mb-3">
-//                 <label className="text-muted">Company Verification Rate</label>
-//                 <div className="progress">
-//                   <div 
-//                     className="progress-bar bg-warning" 
-//                     style={{ width: `${(dashboardData.companies.verified / dashboardData.companies.total) * 100}%` }}
-//                   >
-//                     {Math.round((dashboardData.companies.verified / dashboardData.companies.total) * 100)}%
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboar
-// d;
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer
+  LineChart, Line, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import StatsCard from '../components/StatsCard';
 import { adminApi } from '../api/admin';
-import { Building2, Users, Briefcase, FileText, DollarSign } from 'lucide-react';
+import { Building2, Users, Briefcase, FileText, DollarSign, TrendingUp, RefreshCw, AlertCircle } from 'lucide-react';
 
-// Safe division helper — avoids NaN / Infinity when denominator is 0
-const safePercent = (num, denom) =>
-  denom > 0 ? Math.round((num / denom) * 100) : 0;
+const defaultData = {
+  users:           { total: 0, employees: 0, managers: 0 },
+  companies:       { total: 0, verified: 0 },
+  jobs:            { total: 0, active: 0 },
+  applications:    { total: 0, hired: 0 },
+  revenue:         { total_revenue: 0, total_payments: 0 },
+  monthly_revenue: []
+};
 
+// ─── tiny helpers ──────────────────────────────────────────────────────────────
+const pct = (part, total) =>
+  !total || isNaN(part / total) ? 0 : Math.round((part / total) * 100);
+
+const fmt = (n) => Number(n || 0).toLocaleString();
+
+// ─── Stat Card ─────────────────────────────────────────────────────────────────
+const StatCard = ({ title, value, icon, accent, sub }) => (
+  <div style={{
+    background: '#fff',
+    borderRadius: 16,
+    padding: '24px 28px',
+    boxShadow: '0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+    borderTop: `3px solid ${accent}`,
+    transition: 'box-shadow .2s',
+  }}
+    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,.10)'}
+    onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04)'}
+  >
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div>
+        <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: '#94a3b8', letterSpacing: '.06em', textTransform: 'uppercase' }}>{title}</p>
+        <p style={{ margin: '6px 0 0', fontSize: 28, fontWeight: 700, color: '#0f172a', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
+      </div>
+      <div style={{ background: `${accent}18`, borderRadius: 12, padding: 10, color: accent }}>{icon}</div>
+    </div>
+    <p style={{ margin: 0, fontSize: 12.5, color: '#64748b' }}>{sub}</p>
+  </div>
+);
+
+// ─── Progress row ───────────────────────────────────────────────────────────────
+const ProgressRow = ({ label, value, color }) => (
+  <div style={{ marginBottom: 18 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+      <span style={{ fontSize: 13, color: '#475569', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 700, color }}>{value}%</span>
+    </div>
+    <div style={{ height: 7, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden' }}>
+      <div style={{
+        height: '100%', width: `${value}%`, background: color,
+        borderRadius: 99, transition: 'width 1s ease',
+      }} />
+    </div>
+  </div>
+);
+
+// ─── Custom tooltip for charts ──────────────────────────────────────────────────
+const ChartTooltip = ({ active, payload, label, prefix = '' }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{
+      background: '#1e293b', color: '#f8fafc', padding: '10px 14px',
+      borderRadius: 10, fontSize: 13, boxShadow: '0 8px 24px rgba(0,0,0,.2)'
+    }}>
+      <p style={{ margin: '0 0 4px', color: '#94a3b8', fontSize: 11 }}>{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} style={{ margin: 0, fontWeight: 600 }}>
+          {prefix}{typeof p.value === 'number' ? p.value.toLocaleString() : p.value}
+        </p>
+      ))}
+    </div>
+  );
+};
+
+// ─── Main Dashboard ─────────────────────────────────────────────────────────────
 const Dashboard = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [dashboardData, setDashboardData] = useState({
-    users: { total: 0, employees: 0, managers: 0 },
-    companies: { total: 0, verified: 0 },
-    jobs: { total: 0, active: 0 },
-    applications: { total: 0, hired: 0 },
-    revenue: { total_revenue: 0, total_payments: 0 },
-    monthly_revenue: [],
-  });
+  const [loading, setLoading]       = useState(true);
+  const [data, setData]             = useState(defaultData);
+  const [error, setError]           = useState(null);
+  const fetched = useRef(false);
 
   useEffect(() => {
-    fetchDashboardData();
+    if (fetched.current) return;
+    fetched.current = true;
+    load();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const load = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await adminApi.getDashboard();
-      if (response.data.success) {
-        setDashboardData(response.data.data);
-      }
-    } catch (err) {
-      console.error('Error fetching dashboard:', err);
-      setError('Failed to load dashboard data. Please try again.');
+      const res = await adminApi.getDashboard();
+      if (res.data.success) setData(res.data.data);
+    } catch {
+      setError('Could not load dashboard. Check your connection and try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const statsCards = [
-    {
-      title: 'Total Users',
-      value: dashboardData.users.total.toLocaleString(),
-      icon: <Users size={28} />,
-      color: '#2196F3',
-      subtitle: `${dashboardData.users.employees} employees, ${dashboardData.users.managers} managers`,
-    },
-    {
-      title: 'Companies',
-      value: dashboardData.companies.total.toLocaleString(),
-      icon: <Building2 size={28} />,
-      color: '#4CAF50',
-      subtitle: `${dashboardData.companies.verified} verified`,
-    },
-    {
-      title: 'Job Postings',
-      value: dashboardData.jobs.total.toLocaleString(),
-      icon: <Briefcase size={28} />,
-      color: '#FF9800',
-      subtitle: `${dashboardData.jobs.active} active`,
-    },
-    {
-      title: 'Applications',
-      value: dashboardData.applications.total.toLocaleString(),
-      icon: <FileText size={28} />,
-      color: '#9C27B0',
-      subtitle: `${dashboardData.applications.hired} hired`,
-    },
-    {
-      title: 'Revenue',
-      value: `$${parseFloat(dashboardData.revenue.total_revenue || 0).toLocaleString()}`,
-      icon: <DollarSign size={28} />,
-      color: '#E91E63',
-      subtitle: `${dashboardData.revenue.total_payments} payments`,
-    },
+  const cards = [
+    { title: 'Total Users',    value: fmt(data.users.total),        icon: <Users size={20} />,     accent: '#3b82f6', sub: `${fmt(data.users.employees)} employees · ${fmt(data.users.managers)} managers` },
+    { title: 'Companies',      value: fmt(data.companies.total),    icon: <Building2 size={20} />, accent: '#10b981', sub: `${fmt(data.companies.verified)} verified` },
+    { title: 'Job Postings',   value: fmt(data.jobs.total),         icon: <Briefcase size={20} />, accent: '#f59e0b', sub: `${fmt(data.jobs.active)} active` },
+    { title: 'Applications',   value: fmt(data.applications.total), icon: <FileText size={20} />,  accent: '#8b5cf6', sub: `${fmt(data.applications.hired)} hired` },
+    { title: 'Revenue',        value: `$${fmt(data.revenue.total_revenue)}`, icon: <DollarSign size={20} />, accent: '#ec4899', sub: `${fmt(data.revenue.total_payments)} payments` },
   ];
 
-  if (loading) {
-    return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="mt-3 text-muted">Loading dashboard...</p>
-      </div>
-    );
-  }
+  // ── Loading ──
+  if (loading) return (
+    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%',
+        border: '3px solid #e2e8f0', borderTopColor: '#3b82f6',
+        animation: 'spin 0.8s linear infinite'
+      }} />
+      <p style={{ color: '#94a3b8', fontSize: 14, margin: 0 }}>Loading dashboard…</p>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
-        <span>{error}</span>
-        <button className="btn btn-sm btn-outline-danger" onClick={fetchDashboardData}>
-          Retry
-        </button>
-      </div>
-    );
-  }
+  // ── Error ──
+  if (error) return (
+    <div style={{
+      margin: 32, padding: '20px 24px', borderRadius: 12,
+      background: '#fef2f2', border: '1px solid #fecaca',
+      display: 'flex', alignItems: 'center', gap: 14
+    }}>
+      <AlertCircle size={20} color="#ef4444" />
+      <span style={{ color: '#b91c1c', fontSize: 14, flex: 1 }}>{error}</span>
+      <button onClick={load} style={{
+        display: 'flex', alignItems: 'center', gap: 6,
+        padding: '7px 14px', borderRadius: 8, border: 'none',
+        background: '#ef4444', color: '#fff', fontSize: 13,
+        fontWeight: 600, cursor: 'pointer'
+      }}>
+        <RefreshCw size={14} /> Retry
+      </button>
+    </div>
+  );
 
+  // ── Dashboard ──
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="mb-0">Dashboard Overview</h1>
-        <button className="btn btn-outline-secondary btn-sm" onClick={fetchDashboardData}>
-          Refresh
+    <div style={{ padding: '32px 36px', background: '#f8fafc', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#0f172a' }}>Dashboard</h1>
+          <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: 14 }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
+        <button onClick={load} style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '9px 16px', borderRadius: 10, border: '1px solid #e2e8f0',
+          background: '#fff', color: '#475569', fontSize: 13,
+          fontWeight: 600, cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,.05)'
+        }}>
+          <RefreshCw size={14} /> Refresh
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="row g-3 mb-4">
-        {statsCards.map((stat, index) => (
-          <div key={index} className="col-12 col-sm-6 col-xl-4">
-            <StatsCard {...stat} />
-          </div>
-        ))}
+      {/* Stat Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: 20, marginBottom: 28
+      }}>
+        {cards.map((c, i) => <StatCard key={i} {...c} />)}
       </div>
 
-      <div className="row g-3">
-        {/* Monthly Revenue Chart */}
-        <div className="col-md-8">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-header bg-white border-0 pb-0">
-              <h5 className="mb-0">Monthly Revenue Trend</h5>
+      {/* Charts row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 20, marginBottom: 28 }}>
+
+        {/* Revenue chart */}
+        <div style={{ background: '#fff', borderRadius: 16, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Revenue Trend</h2>
+              <p style={{ margin: '2px 0 0', fontSize: 12, color: '#94a3b8' }}>Monthly overview</p>
             </div>
-            <div className="card-body">
-              {dashboardData.monthly_revenue.length === 0 ? (
-                <div className="text-center py-5 text-muted">No revenue data available.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={dashboardData.monthly_revenue}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']} />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#8884d8"
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f0fdf4', padding: '5px 10px', borderRadius: 20 }}>
+              <TrendingUp size={13} color="#10b981" />
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>This year</span>
             </div>
           </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={data.monthly_revenue} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip prefix="$" />} />
+              <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
 
-        {/* Quick Stats */}
-        <div className="col-md-4">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-header bg-white border-0 pb-0">
-              <h5 className="mb-0">Quick Stats</h5>
-            </div>
-            <div className="card-body">
-              <div className="mb-4">
-                <div className="d-flex justify-content-between mb-1">
-                  <label className="text-muted small">Active Jobs Rate</label>
-                  <span className="small fw-semibold">
-                    {safePercent(dashboardData.jobs.active, dashboardData.jobs.total)}%
-                  </span>
-                </div>
-                <div className="progress" style={{ height: 8 }}>
-                  <div
-                    className="progress-bar bg-success"
-                    style={{ width: `${safePercent(dashboardData.jobs.active, dashboardData.jobs.total)}%` }}
-                  />
-                </div>
-              </div>
+        {/* Quick stats */}
+        <div style={{ background: '#fff', borderRadius: 16, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
+          <h2 style={{ margin: '0 0 24px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Performance</h2>
+          <ProgressRow label="Active Jobs Rate"            value={pct(data.jobs.active, data.jobs.total)}                     color="#f59e0b" />
+          <ProgressRow label="Application Hire Rate"       value={pct(data.applications.hired, data.applications.total)}      color="#3b82f6" />
+          <ProgressRow label="Company Verification Rate"   value={pct(data.companies.verified, data.companies.total)}         color="#10b981" />
 
-              <div className="mb-4">
-                <div className="d-flex justify-content-between mb-1">
-                  <label className="text-muted small">Hired Rate</label>
-                  <span className="small fw-semibold">
-                    {safePercent(dashboardData.applications.hired, dashboardData.applications.total)}%
-                  </span>
-                </div>
-                <div className="progress" style={{ height: 8 }}>
-                  <div
-                    className="progress-bar bg-info"
-                    style={{ width: `${safePercent(dashboardData.applications.hired, dashboardData.applications.total)}%` }}
-                  />
-                </div>
+          <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid #f1f5f9' }}>
+            <p style={{ margin: '0 0 14px', fontSize: 12, fontWeight: 600, color: '#94a3b8', letterSpacing: '.06em', textTransform: 'uppercase' }}>Quick Numbers</p>
+            {[
+              { label: 'Employees', val: fmt(data.users.employees) },
+              { label: 'Managers',  val: fmt(data.users.managers) },
+              { label: 'Payments',  val: fmt(data.revenue.total_payments) },
+            ].map(({ label, val }) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ fontSize: 13, color: '#64748b' }}>{label}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{val}</span>
               </div>
-
-              <div className="mb-4">
-                <div className="d-flex justify-content-between mb-1">
-                  <label className="text-muted small">Company Verification Rate</label>
-                  <span className="small fw-semibold">
-                    {safePercent(dashboardData.companies.verified, dashboardData.companies.total)}%
-                  </span>
-                </div>
-                <div className="progress" style={{ height: 8 }}>
-                  <div
-                    className="progress-bar bg-warning"
-                    style={{ width: `${safePercent(dashboardData.companies.verified, dashboardData.companies.total)}%` }}
-                  />
-                </div>
-              </div>
-
-              <hr />
-
-              <div className="row text-center g-2">
-                <div className="col-6">
-                  <div className="p-3 rounded-3 bg-light">
-                    <div className="fs-5 fw-bold text-primary">{dashboardData.users.managers}</div>
-                    <div className="text-muted" style={{ fontSize: 12 }}>Managers</div>
-                  </div>
-                </div>
-                <div className="col-6">
-                  <div className="p-3 rounded-3 bg-light">
-                    <div className="fs-5 fw-bold text-success">{dashboardData.users.employees}</div>
-                    <div className="text-muted" style={{ fontSize: 12 }}>Employees</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* Applications bar chart */}
+      {data.monthly_revenue?.length > 0 && (
+        <div style={{ background: '#fff', borderRadius: 16, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
+          <h2 style={{ margin: '0 0 24px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Monthly Applications</h2>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data.monthly_revenue} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip />} />
+              <Bar dataKey="applications" fill="#8b5cf6" radius={[6, 6, 0, 0]} maxBarSize={40} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 };
