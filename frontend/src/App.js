@@ -1,179 +1,3 @@
-
-// // import React from 'react';
-// // import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// // import { AuthProvider, useAuth } from './context/AuthContext';
-// // import DashboardLayout from './pages/DashboardLayout';
-// // import Login from './pages/Login';
-// // import Register from './pages/Register';
-// // import Overview from './pages/Overview';
-// // import Jobs from './pages/Jobs';
-// // import JobDetail from './pages/JobDetail';
-// // import Applications from './pages/Applications';
-// // import SavedJobs from './pages/SavedJobs';
-// // import Profile from './pages/Profile';
-// // import Notifications from './pages/Notifications';
-// // import LoadingSpinner from './components/LoadingSpinner';
-// // import './App.css';
-
-// // const PrivateRoute = ({ children }) => {
-// //   const { user, loading } = useAuth();
-// //   if (loading) return <div className="d-flex align-items-center justify-content-center vh-100"><LoadingSpinner /></div>;
-// //   if (!user) return <Navigate to="/login" replace />;
-// //   if (user.role !== 'employee') return <Navigate to="/login" replace />;
-// //   return children;
-// // };
-
-// // const PublicRoute = ({ children }) => {
-// //   const { user, loading } = useAuth();
-// //   if (loading) return <div className="d-flex align-items-center justify-content-center vh-100"><LoadingSpinner /></div>;
-// //   if (user?.role === 'employee') return <Navigate to="/dashboard" replace />;
-// //   return children;
-// // };
-
-// // function App() {
-// //   return (
-// //     <AuthProvider>
-// //       <BrowserRouter>
-// //         <Routes>
-// //           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-// //           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-// //           <Route
-// //             path="/dashboard"
-// //             element={<PrivateRoute><DashboardLayout /></PrivateRoute>}
-// //           >
-// //             <Route index element={<Overview />} />
-// //             <Route path="jobs" element={<Jobs />} />
-// //             <Route path="jobs/:id" element={<JobDetail />} />
-// //             <Route path="applications" element={<Applications />} />
-// //             <Route path="saved" element={<SavedJobs />} />
-// //             <Route path="profile" element={<Profile />} />
-// //             <Route path="notifications" element={<Notifications />} />
-// //           </Route>
-// //           <Route path="*" element={<Navigate to="/login" replace />} />
-// //         </Routes>
-// //       </BrowserRouter>
-// //     </AuthProvider>
-// //   );
-// // }
-
-// // export default App;
-
-// import React from 'react';
-// import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import './App.css';
-
-// import { AuthProvider, useAuth } from './context/AuthContext';
-// import LoadingSpinner from './components/LoadingSpinner';
-
-// // Admin Pages
-// import AdminLayout from './layouts/AdminLayouts';
-// import Dashboard from './pages/Dashboard';
-// import Companies from './pages/Companies';
-// import Users from './pages/Users';
-// import Payments from './pages/Payments';
-// import SubscriptionPlans from './pages/SubscriptionPlans';
-// import Revenue from './pages/Revenue';
-// import Settings from './pages/Settings';
-
-// // Employee Pages
-// import DashboardLayout from './pages/DashboardLayout';
-// import Login from './pages/Login';
-// import Register from './pages/Register';
-// import Overview from './pages/Overview';
-// import Jobs from './pages/Jobs';
-// import JobDetail from './pages/JobDetail';
-// import Applications from './pages/Applications';
-// import SavedJobs from './pages/SavedJobs';
-// import Profile from './pages/Profile';
-// import Notifications from './pages/Notifications';
-
-// // Private route for both Admin and Employee
-// const PrivateRoute = ({ children, role }) => {
-//   const { user, loading } = useAuth();
-//   if (loading)
-//     return (
-//       <div className="d-flex align-items-center justify-content-center vh-100">
-//         <LoadingSpinner />
-//       </div>
-//     );
-//   if (!user) return <Navigate to="/login" replace />;
-//   if (role && user.role !== role) return <Navigate to="/login" replace />;
-//   return children;
-// };
-
-// // Public route
-// const PublicRoute = ({ children }) => {
-//   const { user, loading } = useAuth();
-//   if (loading)
-//     return (
-//       <div className="d-flex align-items-center justify-content-center vh-100">
-//         <LoadingSpinner />
-//       </div>
-//     );
-//   if (user) {
-//     // Redirect based on role
-//     return <Navigate to={user.role === 'admin' ? '/admin/dashboard' : '/dashboard'} replace />;
-//   }
-//   return children;
-// };
-
-// function App() {
-//   return (
-//     <AuthProvider>
-//       <BrowserRouter>
-//         <Routes>
-//           {/* Public Routes */}
-//           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-//           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-
-//           {/* Admin Routes */}
-//           <Route
-//             path="/admin"
-//             element={
-//               <PrivateRoute role="admin">
-//                 <AdminLayout />
-//               </PrivateRoute>
-//             }
-//           >
-//             <Route index element={<Dashboard />} />
-//             <Route path="dashboard" element={<Dashboard />} />
-//             <Route path="companies" element={<Companies />} />
-//             <Route path="users" element={<Users />} />
-//             <Route path="payments" element={<Payments />} />
-//             <Route path="subscriptions" element={<SubscriptionPlans />} />
-//             <Route path="revenue" element={<Revenue />} />
-//             <Route path="settings" element={<Settings />} />
-//           </Route>
-
-//           {/* Employee Routes */}
-//           <Route
-//             path="/dashboard"
-//             element={
-//               <PrivateRoute role="employee">
-//                 <DashboardLayout />
-//               </PrivateRoute>
-//             }
-//           >
-//             <Route index element={<Overview />} />
-//             <Route path="jobs" element={<Jobs />} />
-//             <Route path="jobs/:id" element={<JobDetail />} />
-//             <Route path="applications" element={<Applications />} />
-//             <Route path="saved" element={<SavedJobs />} />
-//             <Route path="profile" element={<Profile />} />
-//             <Route path="notifications" element={<Notifications />} />
-//           </Route>
-
-//           {/* Root & catch-all */}
-//           <Route path="/" element={<Navigate to="/login" replace />} />
-//           <Route path="*" element={<Navigate to="/login" replace />} />
-//         </Routes>
-//       </BrowserRouter>
-//     </AuthProvider>
-//   );
-// }
-
-// export default App;
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -182,7 +6,6 @@ import './App.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoadingSpinner from './components/LoadingSpinner';
 
-// Admin Pages
 import AdminLayout from './layouts/AdminLayouts';
 import Dashboard from './pages/Dashboard';
 import Companies from './pages/Companies';
@@ -192,14 +15,12 @@ import SubscriptionPlans from './pages/SubscriptionPlans';
 import Revenue from './pages/Revenue';
 import Settings from './pages/Settings';
 
-// Company Pages
-import CompanyLayout from './layouts/CompanyLayout';           // create this layout
-import CompanyDashboard from './pages/company/CompanyDashboard'; // create these pages
+import CompanyLayout from './layouts/CompanyLayout';        
+import CompanyDashboard from './pages/company/CompanyDashboard'; 
 import CompanyJobs from './pages/company/CompanyJobs';
 import CompanyApplications from './pages/company/CompanyApplications';
 import CompanyProfile from './pages/company/CompanyProfile';
 
-// Employee Pages
 import DashboardLayout from './pages/DashboardLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -210,11 +31,8 @@ import Applications from './pages/Applications';
 import SavedJobs from './pages/SavedJobs';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
-import LoadingSpinner from './components/LoadingSpinner';
-import Home from './landing-page-componets/Home';
-import './App.css';
+import Home from "./landing-page-componets/Home"
 
-// ─── Route Guards ────────────────────────────────────────────────────────────
 
 const Spinner = () => (
   <div className="d-flex align-items-center justify-content-center vh-100">
@@ -222,7 +40,6 @@ const Spinner = () => (
   </div>
 );
 
-/** Protect a route by required role. If no role given, any logged-in user passes. */
 const PrivateRoute = ({ children, role }) => {
   const { user, loading } = useAuth();
   if (loading) return <Spinner />;
@@ -231,7 +48,6 @@ const PrivateRoute = ({ children, role }) => {
   return children;
 };
 
-/** Redirect logged-in users to their dashboard immediately. */
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <Spinner />;
@@ -247,18 +63,15 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
-// ─── App ─────────────────────────────────────────────────────────────────────
-
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public */}
-          <Route path="/login"    element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
 
-          {/* Admin Routes */}
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
           <Route
             path="/admin"
             element={
@@ -268,16 +81,14 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
-            <Route path="dashboard"     element={<Dashboard />} />
-            <Route path="companies"     element={<Companies />} />
-            <Route path="users"         element={<Users />} />
-            <Route path="payments"      element={<Payments />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="companies" element={<Companies />} />
+            <Route path="users" element={<Users />} />
+            <Route path="payments" element={<Payments />} />
             <Route path="subscriptions" element={<SubscriptionPlans />} />
-            <Route path="revenue"       element={<Revenue />} />
-            <Route path="settings"      element={<Settings />} />
+            <Route path="revenue" element={<Revenue />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
-
-          {/* Company Manager Routes */}
           <Route
             path="/company"
             element={
@@ -287,13 +98,12 @@ function App() {
             }
           >
             <Route index element={<CompanyDashboard />} />
-            <Route path="dashboard"    element={<CompanyDashboard />} />
-            <Route path="jobs"         element={<CompanyJobs />} />
+            <Route path="dashboard" element={<CompanyDashboard />} />
+            <Route path="jobs" element={<CompanyJobs />} />
             <Route path="applications" element={<CompanyApplications />} />
-            <Route path="profile"      element={<CompanyProfile />} />
+            <Route path="profile" element={<CompanyProfile />} />
           </Route>
 
-          {/* Employee Routes */}
           <Route
             path="/dashboard"
             element={
@@ -303,18 +113,17 @@ function App() {
             }
           >
             <Route index element={<Overview />} />
-            <Route path="jobs"         element={<Jobs />} />
-            <Route path="jobs/:id"     element={<JobDetail />} />
+            <Route path="jobs" element={<Jobs />} />
+            <Route path="jobs/:id" element={<JobDetail />} />
             <Route path="applications" element={<Applications />} />
-            <Route path="saved"        element={<SavedJobs />} />
-            <Route path="profile"      element={<Profile />} />
+            <Route path="saved" element={<SavedJobs />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="notifications" element={<Notifications />} />
           </Route>
+
+         
           <Route path="*" element={<Navigate to="/" replace />} />
 
-          {/* Root & catch-all */}
-          <Route path="/"  element={<Navigate to="/login" replace />} />
-          <Route path="*"  element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

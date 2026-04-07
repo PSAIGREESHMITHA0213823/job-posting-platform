@@ -1,40 +1,75 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import img from "../assets/register.jpg";
-import "../index.css";
 
 const Register = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
 
+  const [role, setRole] = useState('employee');
   const [form, setForm] = useState({
     email: '',
     password: '',
     full_name: '',
     phone: '',
-    role: ''  
+    company_name: '',
+    industry: '',
   });
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const set = (k) => (e) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!form.role) {
-      setError("Please select a role");
-      return;
-    }
-
-    console.log("Submitting form:", form);
-
     setLoading(true);
     setError('');
 
     try {
-      const data = await register(form);
+      const endpoint =
+        role === 'company_manager'
+          ? '/api/auth/register/company'
+          : '/api/auth/register/employee';
+
+      const payload =
+        role === 'company_manager'
+          ? {
+              email: form.email,
+              password: form.password,
+              full_name: form.full_name,
+              phone: form.phone,
+              company_name: form.company_name,
+              industry: form.industry,
+            }
+          : {
+              email: form.email,
+              password: form.password,
+              full_name: form.full_name,
+              phone: form.phone,
+            };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
       localStorage.setItem('token', data.token);
-      navigate('/dashboard');
+
+      if (data.user.role === 'company_manager') {
+        navigate('/company/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -42,17 +77,14 @@ const Register = () => {
     }
   };
 
-  const set = (k) => (e) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
-
   return (
     <div
       className="container-fluid p-0"
       style={{
-        fontFamily: "'Ubuntu', sans-serif",
         background: 'linear-gradient(120deg, #0F172A, #1E293B)',
         height: '100vh',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        fontFamily: "'Ubuntu', sans-serif"
       }}
     >
       <div className="row h-100 m-0">
@@ -69,12 +101,29 @@ const Register = () => {
             }}
           >
             <div className="text-center mb-3">
-              <h2 style={{ color: '#6366F1', fontWeight: '900', fontSize: "42px" }}>
+              <h2 style={{ color: '#6366F1', fontWeight: '900', fontSize: "40px" }}>
                 JobPortal
               </h2>
-              <p style={{ color: '#94A3B8', fontSize: "20px" }}>
+              <p style={{ color: '#94A3B8' }}>
                 Create your account 🚀
               </p>
+            </div>
+            <div className="btn-group w-100 mb-3">
+              <button
+                type="button"
+                className={`btn ${role === 'employee' ? 'btn-primary' : 'btn-outline-light'}`}
+                onClick={() => setRole('employee')}
+              >
+                Job Seeker
+              </button>
+
+              <button
+                type="button"
+                className={`btn ${role === 'company_manager' ? 'btn-primary' : 'btn-outline-light'}`}
+                onClick={() => setRole('company_manager')}
+              >
+                Company
+              </button>
             </div>
 
             {error && (
@@ -84,12 +133,10 @@ const Register = () => {
             )}
 
             <form onSubmit={handleSubmit}>
-
-              <div className="mb-2">
-                <label className="small">Name</label>
+              <div className="mb-1">
+                <label className="small">Full Name</label>
                 <input
-                  className="form-control custom-placeholder"
-                  placeholder="Enter name"
+                  className="form-control"
                   value={form.full_name}
                   onChange={set('full_name')}
                   style={inputStyle}
@@ -97,12 +144,11 @@ const Register = () => {
                 />
               </div>
 
-              <div className="mb-2">
+              <div className="mb-1">
                 <label className="small">Email</label>
                 <input
                   type="email"
-                  className="form-control custom-placeholder"
-                  placeholder="Enter email"
+                  className="form-control"
                   value={form.email}
                   onChange={set('email')}
                   style={inputStyle}
@@ -110,40 +156,52 @@ const Register = () => {
                 />
               </div>
 
-              <div className="mb-2">
+              <div className="mb-1">
                 <label className="small">Phone</label>
                 <input
-                  className="form-control custom-placeholder"
-                  placeholder="Enter phone"
+                  className="form-control"
                   value={form.phone}
                   onChange={set('phone')}
                   style={inputStyle}
                 />
               </div>
 
-              <div className="mb-2">
-                <label className="small">Role</label>
-                <select
-                  className="form-control custom-placeholder"
-                  value={form.role}
-                  onChange={set('role')}
-                  style={inputStyle}
-                  required  
-                >
-                  <option value="">Select role</option>
-                  <option value="employee">Employee</option>
-                  <option value="recruiter">Recruiter</option>
-                  <option value="admin">Admin</option>
-                  <option value="company_manager">Admin</option>
-                </select>
-              </div>
+              {role === 'company_manager' && (
+                <>
+                  <div className="mb-1">
+                    <label className="small">Company Name</label>
+                    <input
+                      className="form-control"
+                      value={form.company_name}
+                      onChange={set('company_name')}
+                      style={inputStyle}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-1">
+                    <label className="small">Industry</label>
+                    <select
+                      className="form-control"
+                      value={form.industry}
+                      onChange={set('industry')}
+                      style={inputStyle}
+                    >
+                      <option value="">Select</option>
+                      <option>Technology</option>
+                      <option>Finance</option>
+                      <option>Healthcare</option>
+                      <option>Education</option>
+                    </select>
+                  </div>
+                </>
+              )}
 
               <div className="mb-3">
                 <label className="small">Password</label>
                 <input
                   type="password"
-                  placeholder="••••••••"
-                  className="form-control custom-placeholder"
+                  className="form-control"
                   value={form.password}
                   onChange={set('password')}
                   style={inputStyle}
@@ -165,7 +223,6 @@ const Register = () => {
               >
                 {loading ? 'Creating...' : 'Create Account'}
               </button>
-
             </form>
 
             <p className="text-center mt-3 small">
@@ -176,30 +233,87 @@ const Register = () => {
             </p>
           </div>
         </div>
-        <div
-          className="col-md-6 d-none d-md-flex flex-column justify-content-center align-items-center text-center h-100"
-          style={{
-            background: 'linear-gradient(135deg, #6366F1, #22C55E)',
-            color: 'white'
-          }}
-        >
-          <img
-            src={img}
-            alt="register"
-            style={{
-              width: '100%',
-              maxWidth: '440px',
-              borderRadius: '16px'
-            }}
-          />
+<div
+  className="col-md-6 d-none d-md-flex flex-column justify-content-center align-items-center text-center position-relative"
+  style={{
+    background: 'linear-gradient(135deg, #4F46E5, #22C55E)',
+    color: 'white',
+    overflow: 'hidden'
+  }}
+>
+  <div style={{
+    position: 'absolute',
+    width: '300px',
+    height: '300px',
+    background: '#6366F1',
+    borderRadius: '50%',
+    filter: 'blur(120px)',
+    top: '-50px',
+    left: '-50px',
+    opacity: 0.4
+  }} />
 
-          <h2 style={{ fontSize: '42px', fontWeight: '700' }}>
-            Join & Grow 🚀
-          </h2>
-          <p style={{ fontSize: '18px', maxWidth: '420px', opacity: 0.9 }}>
-            Explore jobs and build your career.
-          </p>
-        </div>
+  <div style={{
+    position: 'absolute',
+    width: '250px',
+    height: '250px',
+    background: '#22C55E',
+    borderRadius: '50%',
+    filter: 'blur(120px)',
+    bottom: '-50px',
+    right: '-50px',
+    opacity: 0.4
+  }} />
+  <div
+    style={{
+      backdropFilter: 'blur(10px)',
+      background: 'rgba(255,255,255,0.08)',
+      padding: '20px',
+      borderRadius: '20px',
+      boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+      zIndex: 2
+    }}
+  >
+    <img
+      src={img}
+      alt="register"
+      style={{
+        width: '100%',
+        maxWidth: '380px',
+        borderRadius: '12px',
+        transition: 'transform 0.4s ease'
+      }}
+      onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+      onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+    />
+  </div>
+  <h2
+    className="mt-4"
+    style={{
+      fontSize: '48px',
+      fontWeight: '900',
+      fontFamily: "'Ubuntu', sans-serif",
+      letterSpacing: '1px',
+      zIndex: 2
+    }}
+  >
+    Join & Grow 🚀
+  </h2>
+  <p
+    className="mt-2"
+    style={{
+      fontSize: '22px',
+      maxWidth: '420px',
+      opacity: 0.9,
+      lineHeight: '1.6',
+      fontFamily: "'Ubuntu', sans-serif",
+      zIndex: 2
+    }}
+  >
+    Discover opportunities, connect with top companies, and build your dream career with confidence.
+  </p>
+
+</div>
 
       </div>
     </div>
