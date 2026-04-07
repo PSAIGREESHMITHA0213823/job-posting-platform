@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "../landing-page-componets/Navbar";
 import "../theams/theam.css";
-import job from "../assets/job.jpg";
+import job from "../assets/jobimg.jpg";
 import { Zap, UserCheck, LayoutDashboard, Shield } from "lucide-react";
 import Footer from "./Footer";
 
