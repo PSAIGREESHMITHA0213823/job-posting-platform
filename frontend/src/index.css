@@ -18,3 +18,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.custom-placeholder::placeholder {
+  color: #94A3B8;
+  opacity: 1;
+}

@@ -26,7 +26,7 @@ export const login = (email, password) =>
   request('POST', '/auth/login', { email, password });
 
 export const register = (payload) =>
-  request('POST', '/auth/register/employee', payload);
+  request('POST', `/auth/register/${payload.role}`, payload);
 
 export const getMe = () => request('GET', '/auth/me');
 

@@ -26,6 +26,7 @@ import SavedJobs from './pages/SavedJobs';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import LoadingSpinner from './components/LoadingSpinner';
+import Home from './landing-page-componets/Home';
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -48,6 +49,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
           <Route
@@ -62,7 +64,7 @@ function App() {
             <Route path="profile" element={<Profile />} />
             <Route path="notifications" element={<Notifications />} />
           </Route>
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
