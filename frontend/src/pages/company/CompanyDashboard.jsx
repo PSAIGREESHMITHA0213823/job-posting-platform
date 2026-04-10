@@ -436,11 +436,11 @@ const CompanyDashboard = () => {
           value={applications?.hired}
           color="#8b5cf6" icon="🎉"
         />
-        <StatCard
+        {/* <StatCard
           label="Total Views"
           value={views?.total_views}
           color="#06b6d4" icon="👁️"
-        />
+        /> */}
       </div>
 
       {/* ── Recent Jobs Table ── */}
@@ -458,7 +458,7 @@ const CompanyDashboard = () => {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#f9fafb' }}>
-              {['Title', 'Status', 'Applications', 'Views', 'Posted'].map(h => (
+              {['Title', 'Status', 'Applications',  'Posted'].map(h => (
                 <th key={h} style={{
                   padding: '10px 16px', textAlign: 'left',
                   fontSize: 11, color: '#6b7280', fontWeight: 700,
@@ -486,9 +486,9 @@ const CompanyDashboard = () => {
                 <td style={{ padding: '12px 16px', color: '#374151' }}>
                   {job.applications}
                 </td>
-                <td style={{ padding: '12px 16px', color: '#374151' }}>
-                  {job.views ?? 0}
-                </td>
+                {/* <td style={{ padding: '12px 16px', color: '#374151' }}>
+                  {job. ?? 0}
+                </td> */}
                 <td style={{ padding: '12px 16px', fontSize: 13, color: '#9ca3af' }}>
                   {new Date(job.created_at).toLocaleDateString('en-US', {
                     month: 'short', day: 'numeric', year: 'numeric',

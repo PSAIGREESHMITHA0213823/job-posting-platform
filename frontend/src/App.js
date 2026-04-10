@@ -912,7 +912,7 @@ import SavedJobs from './pages/SavedJobs';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import Home from './landing-page-componets/Home';
-
+import { CompanyProvider } from './context/CompanyContext';
 import AdminChat from './components/AdminChat';
 
 // ---------- Helpers ----------
@@ -965,6 +965,7 @@ function App() {
               </PrivateRoute>
             }
           >
+            
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="companies" element={<Companies />} />
@@ -984,7 +985,10 @@ function App() {
             path="/company"
             element={
               <PrivateRoute role="company_manager">
+                <CompanyProvider>
                 <CompanyLayout />
+                </CompanyProvider>
+                
               </PrivateRoute>
             }
           >
@@ -993,6 +997,7 @@ function App() {
             <Route path="jobs" element={<CompanyJobs />} />
             <Route path="applications" element={<CompanyApplications />} />
             <Route path="profile" element={<CompanyProfile />} />
+            
           </Route>
 
           {/* Employee */}
