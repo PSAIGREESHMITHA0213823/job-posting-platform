@@ -1,10 +1,4 @@
 const nodemailer = require('nodemailer')
-
-// ─── Transporter ──────────────────────────────────────────────────────────────
-// Configure via environment variables:
-//   SMTP_HOST, SMTP_PORT, SMTP_SECURE (true/false)
-//   SMTP_USER, SMTP_PASS
-//   MAIL_FROM  (e.g. '"MyApp" <no-reply@myapp.com>')
 const transporter = nodemailer.createTransport({
   host:   process.env.SMTP_HOST   || 'smtp.gmail.com',
   port:   parseInt(process.env.SMTP_PORT || '587'),
@@ -17,7 +11,6 @@ const transporter = nodemailer.createTransport({
 
 const FROM = process.env.MAIL_FROM || '"JobPortal" <no-reply@jobportal.com>'
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
  * Low-level send. All other helpers call this.
@@ -33,8 +26,6 @@ const sendMail = async ({ to, subject, html, text }) => {
     console.error(`[mailer] failed to send to ${to}:`, err.message)
   }
 }
-
-// ─── Templates ────────────────────────────────────────────────────────────────
 
 const baseTemplate = (bodyHtml) => `
 <!DOCTYPE html>
@@ -69,16 +60,6 @@ const baseTemplate = (bodyHtml) => `
   </div>
 </body>
 </html>`
-
-// ─── Exported mail senders ────────────────────────────────────────────────────
-
-/**
- * Welcome email sent when admin creates a user OR when a user self-registers.
- *
- * @param {{ email: string, full_name: string, role: string, password?: string, loginUrl?: string }} opts
- *   password — plain-text password (only include when admin creates the account)
- *   loginUrl — defaults to FRONTEND_URL/login
- */
 const sendWelcomeEmail = async ({ email, full_name, role, password, loginUrl }) => {
   const name    = full_name || email
   const roleLabel = role === 'company_manager' ? 'Company Manager'
@@ -113,9 +94,7 @@ const sendWelcomeEmail = async ({ email, full_name, role, password, loginUrl }) 
   })
 }
 
-/**
- * Notify user their account status changed (active/inactive).
- */
+
 const sendStatusChangeEmail = async ({ email, full_name, is_active }) => {
   const name   = full_name || email
   const status = is_active ? 'reactivated' : 'deactivated'

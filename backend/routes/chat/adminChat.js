@@ -5,13 +5,10 @@ const ctrl = require('../../controllers/chat/chat.controller');
 router.use(auth);
 router.use(requireRole('admin'));
 
-// see all employee chats
-router.get('/users', ctrl.getAllEmployeeChats);
-
-// send reply
-router.post('/send', ctrl.sendMessage);
-
-// get chat with specific employee
-router.get('/:userId', ctrl.getMessages);
+router.get('/users',       ctrl.getAllEmployeeChats);
+router.post('/send',       ctrl.sendMessage);
+router.delete('/:id',      ctrl.deleteMessage);
+router.post('/:id/react',  ctrl.reactToMessage);
+router.get('/:userId',     ctrl.getMessages);
 
 module.exports = router;
