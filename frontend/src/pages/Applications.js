@@ -136,7 +136,7 @@ const Applications = () => {
         </div>
         
         <div className="filter-pills">
-          {['', 'pending', 'reviewing', 'shortlisted', 'hired', 'rejected'].map(s => (
+          {['', 'pending', 'shortlisted', 'hired', 'rejected'].map(s => (
             <button
               key={s}
               onClick={() => { setFilter(s); setPage(1); }}

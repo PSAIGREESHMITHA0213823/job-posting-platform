@@ -1,3 +1,79 @@
+/* 1. Force the entire page background to white */
+body {
+  background-color: #ffffff !important;
+  color: #111111 !important;
+}
+
+/* 2. Update the main container to ensure it stays white */
+.app-container { 
+  max-width: 900px; 
+  margin: 2rem auto; 
+  padding: 0 1rem; 
+  background-color: #ffffff !important; /* Forces container background */
+  min-height: 100vh;
+}
+
+/* 3. Refine the Card for the white background */
+.modern-card { 
+  background-color: #ffffff !important; /* Ensure card is white */
+  border-radius: 12px; 
+  border: 1px solid #e0e0e0; 
+  margin-bottom: 1rem; 
+  position: relative; 
+  overflow: hidden; 
+  transition: transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02); /* Slight shadow for visibility on white */
+}
+
+/* 4. Fix the Header text colors so they aren't hidden on white */
+.header-title { 
+  font-weight: 700; 
+  margin: 0; 
+  color: #111111 !important; 
+}
+
+.header-subtitle { 
+  color: #6c757d !important; 
+  margin: 0; 
+}
+
+/* 5. Clean up the filter pills for white background */
+.filter-pills { 
+  display: flex; 
+  gap: 0.5rem; 
+  background: #f8f9fa; /* Very light grey for contrast */
+  padding: 0.4rem; 
+  border-radius: 50px; 
+  border: 1px solid #eee;
+}
+
+.filter-btn { 
+  border: none; 
+  background: transparent; 
+  padding: 0.4rem 1.2rem; 
+  border-radius: 50px; 
+  font-size: 0.85rem; 
+  color: #444 !important;
+  transition: 0.3s; 
+}
+
+.filter-btn.active { 
+  background: #ffffff !important; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+  color: #0d6efd !important; 
+  font-weight: 600; 
+}
+
+/* 6. Ensure pagination buttons look good on white */
+.pagi-btn { 
+  border: 1px solid #ddd; 
+  background: #ffffff !important; 
+  color: #333 !important;
+  padding: 0.5rem 1rem; 
+  border-radius: 8px; 
+  font-size: 0.9rem; 
+  transition: 0.2s; 
+}
 /* Container & Layout */
 .app-container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
 
