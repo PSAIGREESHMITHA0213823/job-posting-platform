@@ -1,44 +1,80 @@
 import React from "react";
 import logo from "../assets/logo.png";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEnvelope,
+  faGlobe,
+  faPaperPlane,
+} from "@fortawesome/free-solid-svg-icons";
+import { faTwitter, faLinkedin } from "@fortawesome/free-brands-svg-icons";
 
 function Footer() {
-  const ubuntuFont = { fontFamily: "'Ubuntu', sans-serif" };
-
   return (
     <footer
-      className="py-5"
       style={{
-        background: "#0F172A",
+        background: "var(--bg)",
         borderTop: "1px solid #1E293B",
-        ...ubuntuFont,
+        fontFamily: "'Ubuntu', sans-serif",
       }}
     >
       <div className="container">
-        <div className="row">
-          <div className="col-12 col-sm-6 col-md-4 mb-4">
-            <div className="d-flex align-items-center mb-3 flex-wrap">
+        <div className="row mt-5 gy-4">
+          <div className="col-12 col-sm-6 col-lg-4">
+            <div
+              style={{
+                width: "90px",
+                height: "90px",
+                overflow: "hidden",
+                border: "2px solid #6366F1",
+                borderRadius: "12px",
+                boxShadow: "0 6px 16px rgba(99,102,241,0.3)",
+                marginBottom: "10px",
+              }}
+            >
               <img
                 src={logo}
                 alt="JobPortal Logo"
-                style={{ width: "100px", height: "100px", marginRight: "12px" }}
+                style={{ width: "100%", height: "100%" }}
               />
-              <h5 style={{ color: "var(--primary)", margin: 0, fontSize: "24px" }}>ShnoorJob</h5>
             </div>
-            <p style={{ color: "#94A3B8", lineHeight: "1.8" }}>
-              Your one-stop platform to find your dream job and connect with top companies.
+
+            <h5
+              style={{
+                color: "var(--primary)",
+                fontSize: "24px",
+                fontWeight: "bold",
+              }}
+            >
+              ShnoorJob
+            </h5>
+
+            <p
+              style={{
+                color: "var(--text)",
+                fontSize: "14px",
+                maxWidth: "280px",
+              }}
+            >
+              Your one-stop platform to find your dream job and connect with top
+              companies.
             </p>
           </div>
-          <div className="col-6 col-sm-6 col-md-2 mb-4">
-            <h6 style={{ color: "var(--primary)", marginBottom: "15px" }}>Quick Links</h6>
-            <ul className="list-unstyled" style={{ paddingLeft: 0 }}>
+          <div className="col-6 col-sm-6 col-lg-2">
+            <h6 style={{ color: "var(--primary)", marginBottom: "12px" }}>
+              Quick Links
+            </h6>
+            <ul className="list-unstyled">
               {["Jobs", "Companies", "About Us", "Contact"].map((link, i) => (
-                <li key={i} className="mb-2">
+                <li key={i}>
                   <a
                     href="/"
-                    className="text-decoration-none"
-                    style={{ color: "#94A3B8", transition: "color 0.3s" }}
-                    onMouseEnter={(e) => (e.target.style.color = "#6366F1")}
-                    onMouseLeave={(e) => (e.target.style.color = "#94A3B8")}
+                    style={{
+                      color: "var(--text)",
+                      fontSize: "14px",
+                      textDecoration: "none",
+                      display: "inline-block",
+                      marginBottom: "6px",
+                    }}
                   >
                     {link}
                   </a>
@@ -46,81 +82,105 @@ function Footer() {
               ))}
             </ul>
           </div>
-          <div className="col-6 col-sm-6 col-md-3 mb-4">
-            <h6 style={{ color: "var(--primary)", marginBottom: "15px" }}>Connect with Us</h6>
-            <div className="d-flex gap-3 flex-wrap">
-              {[
-                { icon: "🌐", link: "#" },
-                { icon: "🐦", link: "#" },
-                { icon: "💼", link: "#" },
-                { icon: "✉️", link: "#" },
-              ].map((item, i) => (
+          <div className="col-6 col-sm-6 col-lg-3">
+            <h6 style={{ color: "var(--primary)", marginBottom: "12px" }}>
+              Connect with Us
+            </h6>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "15px",
+                flexWrap: "wrap",
+              }}
+            >
+              {[faGlobe, faTwitter, faLinkedin, faEnvelope].map((icon, i) => (
                 <a
                   key={i}
-                  href={item.link}
+                  href="/"
                   style={{
-                    fontSize: "24px",
-                    color: "#94A3B8",
-                    transition: "transform 0.3s, color 0.3s",
-                    textDecoration: "none",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = "scale(1.2)";
-                    e.target.style.color = "#6366F1";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = "scale(1)";
-                    e.target.style.color = "#94A3B8";
+                    fontSize: "20px",
+                    color: "var(--text)",
                   }}
                 >
-                  {item.icon}
+                  <FontAwesomeIcon icon={icon} />
                 </a>
               ))}
             </div>
           </div>
-          <div className="col-12 col-sm-12 col-md-3 mb-4">
-            <h6 style={{ color: "var(--primary)", marginBottom: "15px" }}>Subscribe</h6>
-            <p style={{ color: "#94A3B8", fontSize: "14px" }}>
+          <div className="col-12 col-lg-3">
+            <h6 style={{ color: "var(--primary)", marginBottom: "12px" }}>
+              Subscribe
+            </h6>
+
+            <p
+              style={{
+                color: "var(--text)",
+                fontSize: "14px",
+              }}
+            >
               Get the latest jobs directly to your inbox
             </p>
-            <div className="d-flex flex-column flex-sm-row">
-              <input
-                type="email"
-                className="form-control mb-2 mb-sm-0 me-sm-2"
-                placeholder="Your email"
-                style={{
-                  backgroundColor: "#1F2937",
-                  border: "none",
-                  color: "#fff",
-                  borderRadius: "8px 0 0 8px",
-                  transition: "all 0.3s",
-                  flex: 1,
-                }}
-                onFocus={(e) => (e.target.style.boxShadow = "0 0 10px #22C55E")}
-                onBlur={(e) => (e.target.style.boxShadow = "none")}
-              />
-              <button
-                className="btn btn-success"
-                style={{
-                  borderRadius: "0 8px 8px 0",
-                  background: "#6366F1",
-                  fontWeight: "bold",
-                  transition: "all 0.3s",
-                }}
-                onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
-                onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
-              >
-                Subscribe
-              </button>
-            </div>
+
+<div
+  style={{
+    display: "flex",
+    width: "100%",
+    background: "#1E293B",
+    borderRadius: "8px",
+    overflow: "hidden",
+    border: "1px solid rgba(148,163,184,0.2)",
+  }}
+>
+  <input
+    type="email"
+    placeholder="Your email"
+    style={{
+      flex: "1 1 auto", 
+      minWidth: "0",
+      border: "none",
+      outline: "none",
+      background: "transparent",
+      color: "#fff",
+      padding: "10px",
+      fontSize: "14px",
+    }}
+  />
+
+  <button
+    style={{
+      background: "var(--primary)",
+      border: "none",
+      padding: "0 16px",
+      color: "white",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0, 
+    }}
+  >
+    <FontAwesomeIcon icon={faPaperPlane} />
+  </button>
+</div>
           </div>
         </div>
-
-        <div className="text-center mt-5">
-          <small style={{ color: "#94A3B8" }}>
-            © 2026 ShnoorJob. All rights reserved. | Made with 💚 in India
-          </small>
-        </div>
+      </div>
+      <div
+        style={{
+          borderTop: "1px solid rgba(148,163,184,0.2)",
+          marginTop: "40px",
+          padding: "15px 0",
+          textAlign: "center",
+        }}
+      >
+        <small style={{ color: "var(--text)", fontSize: "13px" }}>
+          © 2026{" "}
+          <span style={{ color: "var(--primary)", fontWeight: "600" }}>
+            ShnoorJob
+          </span>
+          . All rights reserved. | Made with 💚 in India
+        </small>
       </div>
     </footer>
   );
