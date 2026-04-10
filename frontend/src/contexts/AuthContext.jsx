@@ -1,57 +1,61 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getMe, login as apiLogin } from '../services/api';
+
+import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser]       = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true); // start true — we don't know yet
+const BASE_URL = 'http://localhost:5000';
 
-  // Run ONCE on mount to restore session from token
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setLoading(false); // no token → not logged in, stop loading immediately
-      return;
+export function AuthProvider({ children }) {
+  const [user, setUserState] = useState(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
     }
+  });
 
-    getMe()
-      .then(d => {
-        setUser(d.user);
-        setProfile(d.profile);
-      })
-      .catch(() => {
-        // Token is invalid/expired — clear it
-        localStorage.removeItem('token');
-        setUser(null);
-        setProfile(null);
-      })
-      .finally(() => {
-        setLoading(false); // always stop loading
-      });
-  }, []); // empty array = only on mount, never re-runs
+  const setUser = (updater) => {
+    setUserState(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (next) {
+        localStorage.setItem('user', JSON.stringify(next));
+      } else {
+        localStorage.removeItem('user');
+      }
+      return next;
+    });
+  };
 
+  // ✅ login function — calls API, saves token + user
   const login = async (email, password) => {
-    const data = await apiLogin(email, password);
+    const res = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Login failed');
     localStorage.setItem('token', data.token);
-    setUser(data.user);       // set user from login response directly
-    setProfile(data.profile ?? null); // use profile from login if available
-    // DO NOT call getMe() again here — it causes a flicker
-    return data;
+    setUser(data.user);
+    return data; // Login.js uses data.user.role to redirect
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    setUser(null);
-    setProfile(null);
+    localStorage.removeItem('user');
+    setUserState(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, setProfile, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
+  return ctx;
+}

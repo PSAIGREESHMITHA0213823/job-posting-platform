@@ -1,3 +1,72 @@
+
+// import React from 'react';
+// import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+// export default function DataTable({ columns, data, loading, currentPage, totalPages, onPageChange }) {
+//   if (loading) {
+//     return (
+//       <div style={{ padding: 40, display: 'flex', justifyContent: 'center' }}>
+//         <div className="spinner" />
+//       </div>
+//     );
+//   }
+
+//   if (!data.length) {
+//     return (
+//       <div style={{ padding: 48, textAlign: 'center', color: 'var(--text3)', fontFamily: 'var(--mono)', fontSize: 13 }}>
+//         no records found
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <>
+//       <div style={{ overflowX: 'auto' }}>
+//         <table className="tbl">
+//           <thead>
+//             <tr>
+//               {columns.map(c => <th key={c.header}>{c.header}</th>)}
+//             </tr>
+//           </thead>
+//           <tbody>
+//             {data.map((row, i) => (
+//               <tr key={i}>
+//                 {columns.map(c => (
+//                   <td key={c.header}>
+//                     {c.render ? c.render(row[c.accessor], row) : (row[c.accessor] ?? '—')}
+//                   </td>
+//                 ))}
+//               </tr>
+//             ))}
+//           </tbody>
+//         </table>
+//       </div>
+
+//       {totalPages > 1 && (
+//         <div className="tbl-footer">
+//           <span className="tbl-count">page {currentPage} of {totalPages}</span>
+//           <div className="pagination">
+//             <button className="pg-btn" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
+//               <ChevronLeft size={13} />
+//             </button>
+//             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+//               const p = currentPage <= 3 ? i + 1 : currentPage - 2 + i;
+//               if (p < 1 || p > totalPages) return null;
+//               return (
+//                 <button key={p} className={`pg-btn ${p === currentPage ? 'active' : ''}`} onClick={() => onPageChange(p)}>
+//                   {p}
+//                 </button>
+//               );
+//             })}
+//             <button className="pg-btn" disabled={currentPage >= totalPages} onClick={() => onPageChange(currentPage + 1)}>
+//               <ChevronRight size={13} />
+//             </button>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// }
 import React from 'react';
 
 const DataTable = ({ columns, data, loading, onPageChange, currentPage, totalPages }) => {

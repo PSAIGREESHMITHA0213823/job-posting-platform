@@ -1,7 +1,284 @@
+// // import React, { useState } from 'react';
+// // import { useNavigate, Link } from 'react-router-dom';
+// // import { register } from '../services/api';
+
+// // const Register = () => {
+// //   const navigate = useNavigate();
+// //   const [form, setForm] = useState({ email: '', password: '', full_name: '', phone: '' });
+// //   const [error, setError] = useState('');
+// //   const [loading, setLoading] = useState(false);
+
+// //   const handleSubmit = async (e) => {
+// //     e.preventDefault();
+// //     setLoading(true);
+// //     setError('');
+// //     try {
+// //       const data = await register(form);
+// //       localStorage.setItem('token', data.token);
+// //       navigate('/dashboard');
+// //     } catch (err) {
+// //       setError(err.message || 'Registration failed');
+// //     } finally {
+// //       setLoading(false);
+// //     }
+// //   };
+
+// //   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
+// //   return (
+// //     <div className="auth-page">
+// //       <div className="auth-card">
+// //         <div className="auth-brand">
+// //           <i className="bi bi-lightning-charge-fill text-warning me-2 fs-4" />
+// //           <span className="fs-4 fw-bold">JobPortal</span>
+// //         </div>
+// //         <h2 className="auth-title">Create account</h2>
+// //         <p className="auth-sub">Start your job search journey</p>
+// //         {error && <div className="alert alert-danger py-2 small">{error}</div>}
+// //         <form onSubmit={handleSubmit}>
+// //           <div className="mb-3">
+// //             <label className="form-label fw-medium">Full Name</label>
+// //             <input className="form-control" placeholder="John Doe" value={form.full_name} onChange={set('full_name')} required />
+// //           </div>
+// //           <div className="mb-3">
+// //             <label className="form-label fw-medium">Email</label>
+// //             <input type="email" className="form-control" placeholder="you@email.com" value={form.email} onChange={set('email')} required />
+// //           </div>
+// //           <div className="mb-3">
+// //             <label className="form-label fw-medium">Phone (optional)</label>
+// //             <input className="form-control" placeholder="+91 98765 43210" value={form.phone} onChange={set('phone')} />
+// //           </div>
+// //           <div className="mb-4">
+// //             <label className="form-label fw-medium">Password</label>
+// //             <input type="password" className="form-control" placeholder="Min 6 characters" value={form.password} onChange={set('password')} required minLength={6} />
+// //           </div>
+// //           <button className="btn btn-primary btn-lg w-100" disabled={loading}>
+// //             {loading ? <span className="spinner-border spinner-border-sm me-2" /> : null}
+// //             {loading ? 'Creating account...' : 'Create Account'}
+// //           </button>
+// //         </form>
+// //         <p className="text-center mt-3 text-muted small">
+// //           Already have an account? <Link to="/login" className="text-primary fw-medium">Sign in</Link>
+// //         </p>
+// //       </div>
+// //     </div>
+// //   );
+// // };
+
+// // export default Register;
+// import React, { useState } from 'react';
+// import { useNavigate, Link } from 'react-router-dom';
+// import { useAuth } from '../context/AuthContext';
+
+// const Register = () => {
+//   const { login } = useAuth();
+//   const navigate = useNavigate();
+//   const [role, setRole] = useState('employee'); // 'employee' | 'company_manager'
+//   const [form, setForm] = useState({
+//     email: '',
+//     password: '',
+//     full_name: '',
+//     phone: '',
+//     company_name: '',
+//     industry: '',
+//   });
+//   const [error, setError] = useState('');
+//   const [loading, setLoading] = useState(false);
+
+//   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setLoading(true);
+//     setError('');
+
+//     try {
+//       const endpoint =
+//         role === 'company_manager'
+//           ? '/api/auth/register/company'
+//           : '/api/auth/register/employee';
+
+//       const payload =
+//         role === 'company_manager'
+//           ? {
+//               email: form.email,
+//               password: form.password,
+//               full_name: form.full_name,
+//               phone: form.phone,
+//               company_name: form.company_name,
+//               industry: form.industry,
+//             }
+//           : {
+//               email: form.email,
+//               password: form.password,
+//               full_name: form.full_name,
+//               phone: form.phone,
+//             };
+
+//       const res = await fetch(endpoint, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload),
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok || !data.success) {
+//         throw new Error(data.message || 'Registration failed');
+//       }
+
+//       // Store token and redirect based on role
+//       localStorage.setItem('token', data.token);
+
+//       if (data.user.role === 'company_manager') {
+//         navigate('/company/dashboard');
+//       } else {
+//         navigate('/dashboard');
+//       }
+//     } catch (err) {
+//       setError(err.message || 'Registration failed');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="auth-page">
+//       <div className="auth-card">
+//         <div className="auth-brand">
+//           <i className="bi bi-lightning-charge-fill text-warning me-2 fs-4" />
+//           <span className="fs-4 fw-bold">JobPortal</span>
+//         </div>
+//         <h2 className="auth-title">Create account</h2>
+//         <p className="auth-sub">Choose how you want to use JobPortal</p>
+
+//         {/* Role Toggle */}
+//         <div className="btn-group w-100 mb-4" role="group">
+//           <button
+//             type="button"
+//             className={`btn ${role === 'employee' ? 'btn-primary' : 'btn-outline-primary'}`}
+//             onClick={() => setRole('employee')}
+//           >
+//             <i className="bi bi-person-fill me-1" />
+//             Job Seeker
+//           </button>
+//           <button
+//             type="button"
+//             className={`btn ${role === 'company_manager' ? 'btn-primary' : 'btn-outline-primary'}`}
+//             onClick={() => setRole('company_manager')}
+//           >
+//             <i className="bi bi-building me-1" />
+//             Company
+//           </button>
+//         </div>
+
+//         {error && <div className="alert alert-danger py-2 small">{error}</div>}
+
+//         <form onSubmit={handleSubmit}>
+//           <div className="mb-3">
+//             <label className="form-label fw-medium">Full Name</label>
+//             <input
+//               className="form-control"
+//               placeholder="John Doe"
+//               value={form.full_name}
+//               onChange={set('full_name')}
+//               required
+//             />
+//           </div>
+
+//           <div className="mb-3">
+//             <label className="form-label fw-medium">Email</label>
+//             <input
+//               type="email"
+//               className="form-control"
+//               placeholder="you@email.com"
+//               value={form.email}
+//               onChange={set('email')}
+//               required
+//             />
+//           </div>
+
+//           <div className="mb-3">
+//             <label className="form-label fw-medium">Phone (optional)</label>
+//             <input
+//               className="form-control"
+//               placeholder="+91 98765 43210"
+//               value={form.phone}
+//               onChange={set('phone')}
+//             />
+//           </div>
+
+//           {/* Company-specific fields */}
+//           {role === 'company_manager' && (
+//             <>
+//               <div className="mb-3">
+//                 <label className="form-label fw-medium">Company Name</label>
+//                 <input
+//                   className="form-control"
+//                   placeholder="Acme Inc."
+//                   value={form.company_name}
+//                   onChange={set('company_name')}
+//                   required
+//                 />
+//               </div>
+//               <div className="mb-3">
+//                 <label className="form-label fw-medium">Industry (optional)</label>
+//                 <select
+//                   className="form-select"
+//                   value={form.industry}
+//                   onChange={set('industry')}
+//                 >
+//                   <option value="">Select industry</option>
+//                   <option value="Technology">Technology</option>
+//                   <option value="Finance">Finance</option>
+//                   <option value="Healthcare">Healthcare</option>
+//                   <option value="Education">Education</option>
+//                   <option value="Retail">Retail</option>
+//                   <option value="Manufacturing">Manufacturing</option>
+//                   <option value="Other">Other</option>
+//                 </select>
+//               </div>
+//             </>
+//           )}
+
+//           <div className="mb-4">
+//             <label className="form-label fw-medium">Password</label>
+//             <input
+//               type="password"
+//               className="form-control"
+//               placeholder="Min 6 characters"
+//               value={form.password}
+//               onChange={set('password')}
+//               required
+//               minLength={6}
+//             />
+//           </div>
+
+//           <button className="btn btn-primary btn-lg w-100" disabled={loading}>
+//             {loading && <span className="spinner-border spinner-border-sm me-2" />}
+//             {loading
+//               ? 'Creating account...'
+//               : role === 'company_manager'
+//               ? 'Create Company Account'
+//               : 'Create Account'}
+//           </button>
+//         </form>
+
+//         <p className="text-center mt-3 text-muted small">
+//           Already have an account?{' '}
+//           <Link to="/login" className="text-primary fw-medium">Sign in</Link>
+//         </p>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Register;
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import img from "../assets/register.jpg";
+import logo from "../assets/logo.png";
+import "../App.css"
 
 const Register = () => {
   const { login } = useAuth();
@@ -78,254 +355,142 @@ const Register = () => {
   };
 
   return (
-    <div
-      className="container-fluid p-0"
-      style={{
-        background: 'linear-gradient(120deg, #0F172A, #1E293B)',
-        height: '100vh',
-        overflow: 'hidden',
-        fontFamily: "'Ubuntu', sans-serif"
-      }}
-    >
-      <div className="row h-100 m-0">
-        <div className="col-md-6 d-flex align-items-center justify-content-center">
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '460px',
-              padding: '25px',
-              borderRadius: '18px',
-              background: 'rgba(30, 41, 59, 0.95)',
-              color: '#E2E8F0',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-            }}
-          >
-            <div className="text-center mb-3">
-              <h2 style={{ color: '#6366F1', fontWeight: '900', fontSize: "40px" }}>
-                JobPortal
-              </h2>
-              <p style={{ color: '#94A3B8' }}>
-                Create your account 🚀
-              </p>
-            </div>
-            <div className="btn-group w-100 mb-3">
-              <button
-                type="button"
-                className={`btn ${role === 'employee' ? 'btn-primary' : 'btn-outline-light'}`}
-                onClick={() => setRole('employee')}
-              >
-                Job Seeker
-              </button>
+    <div className="login-container">
+      <div className="login-left">
+        <div className="login-card register-card">
+          <div className="brand-section">
+            <img src={logo} alt="logo" className="logo" />
+            <h1 className="brand-name">ShnoorJob</h1>
+            <p className="tagline">Create your account 🚀</p>
+          </div>
+          <div className="role-switch">
+            <button
+              className={role === 'employee' ? 'active' : ''}
+              onClick={() => setRole('employee')}
+              type="button"
+            >
+              Job Seeker
+            </button>
 
-              <button
-                type="button"
-                className={`btn ${role === 'company_manager' ? 'btn-primary' : 'btn-outline-light'}`}
-                onClick={() => setRole('company_manager')}
-              >
-                Company
-              </button>
-            </div>
+            <button
+              className={role === 'company_manager' ? 'active' : ''}
+              onClick={() => setRole('company_manager')}
+              type="button"
+            >
+              Company
+            </button>
+          </div>
 
-            {error && (
-              <div className="alert alert-danger py-2 small text-center">
-                {error}
-              </div>
-            )}
+          {error && <div className="error-box">{error}</div>}
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-1">
-                <label className="small">Full Name</label>
+          <form onSubmit={handleSubmit}>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Full Name</label>
                 <input
-                  className="form-control"
                   value={form.full_name}
                   onChange={set('full_name')}
-                  style={inputStyle}
                   required
                 />
               </div>
 
-              <div className="mb-1">
-                <label className="small">Email</label>
+              <div className="form-group">
+                <label>Email</label>
                 <input
                   type="email"
-                  className="form-control"
                   value={form.email}
                   onChange={set('email')}
-                  style={inputStyle}
                   required
                 />
               </div>
-
-              <div className="mb-1">
-                <label className="small">Phone</label>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Phone</label>
                 <input
-                  className="form-control"
                   value={form.phone}
                   onChange={set('phone')}
-                  style={inputStyle}
                 />
               </div>
 
-              {role === 'company_manager' && (
-                <>
-                  <div className="mb-1">
-                    <label className="small">Company Name</label>
-                    <input
-                      className="form-control"
-                      value={form.company_name}
-                      onChange={set('company_name')}
-                      style={inputStyle}
-                      required
-                    />
-                  </div>
-
-                  <div className="mb-1">
-                    <label className="small">Industry</label>
-                    <select
-                      className="form-control"
-                      value={form.industry}
-                      onChange={set('industry')}
-                      style={inputStyle}
-                    >
-                      <option value="">Select</option>
-                      <option>Technology</option>
-                      <option>Finance</option>
-                      <option>Healthcare</option>
-                      <option>Education</option>
-                    </select>
-                  </div>
-                </>
-              )}
-
-              <div className="mb-3">
-                <label className="small">Password</label>
+              <div className="form-group">
+                <label>Password</label>
                 <input
                   type="password"
-                  className="form-control"
                   value={form.password}
                   onChange={set('password')}
-                  style={inputStyle}
                   required
                   minLength={6}
                 />
               </div>
+            </div>
 
-              <button
-                className="btn w-100"
-                disabled={loading}
-                style={{
-                  background: 'linear-gradient(135deg, #6366F1, #22C55E)',
-                  color: 'white',
-                  borderRadius: '10px',
-                  padding: '10px',
-                  fontWeight: '600'
-                }}
-              >
-                {loading ? 'Creating...' : 'Create Account'}
-              </button>
-            </form>
+            {role === 'company_manager' && (
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Company Name</label>
+                  <input
+                    value={form.company_name}
+                    onChange={set('company_name')}
+                    required
+                  />
+                </div>
 
-            <p className="text-center mt-3 small">
-              Already have an account?{' '}
-              <Link to="/login" style={{ color: '#22C55E' }}>
-                Sign in
-              </Link>
-            </p>
-          </div>
+                <div className="form-group">
+                  <label>Industry</label>
+                  <select
+                    value={form.industry}
+                    onChange={set('industry')}
+                  >
+                    <option value="">Select</option>
+                    <option>Technology</option>
+                    <option>Finance</option>
+                    <option>Healthcare</option>
+                    <option>Education</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            <button className="login-btn" disabled={loading}>
+              {loading ? 'Creating...' : 'Create Account'}
+            </button>
+          </form>
+
+          <p className="signup-text">
+            Already have an account? <Link to="/login">Sign in</Link>
+          </p>
+
         </div>
-<div
-  className="col-md-6 d-none d-md-flex flex-column justify-content-center align-items-center text-center position-relative"
-  style={{
-    background: 'linear-gradient(135deg, #4F46E5, #22C55E)',
-    color: 'white',
-    overflow: 'hidden'
-  }}
->
-  <div style={{
-    position: 'absolute',
-    width: '300px',
-    height: '300px',
-    background: '#6366F1',
-    borderRadius: '50%',
-    filter: 'blur(120px)',
-    top: '-50px',
-    left: '-50px',
-    opacity: 0.4
-  }} />
-
-  <div style={{
-    position: 'absolute',
-    width: '250px',
-    height: '250px',
-    background: '#22C55E',
-    borderRadius: '50%',
-    filter: 'blur(120px)',
-    bottom: '-50px',
-    right: '-50px',
-    opacity: 0.4
-  }} />
-  <div
-    style={{
-      backdropFilter: 'blur(10px)',
-      background: 'rgba(255,255,255,0.08)',
-      padding: '20px',
-      borderRadius: '20px',
-      boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-      zIndex: 2
-    }}
-  >
-    <img
-      src={img}
-      alt="register"
-      style={{
-        width: '100%',
-        maxWidth: '380px',
-        borderRadius: '12px',
-        transition: 'transform 0.4s ease'
-      }}
-      onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-      onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-    />
-  </div>
-  <h2
-    className="mt-4"
-    style={{
-      fontSize: '48px',
-      fontWeight: '900',
-      fontFamily: "'Ubuntu', sans-serif",
-      letterSpacing: '1px',
-      zIndex: 2
-    }}
-  >
-    Join & Grow 🚀
-  </h2>
-  <p
-    className="mt-2"
-    style={{
-      fontSize: '22px',
-      maxWidth: '420px',
-      opacity: 0.9,
-      lineHeight: '1.6',
-      fontFamily: "'Ubuntu', sans-serif",
-      zIndex: 2
-    }}
-  >
-    Discover opportunities, connect with top companies, and build your dream career with confidence.
-  </p>
-
-</div>
-
       </div>
+      <div className="login-right">
+        <img src={img} alt="register" />
+      </div>
+      <style>{`
+        :root {
+          --primary: #6366F1;
+          --secondary: #22C55E;
+          --bg: #0F172A;
+          --surface: #1E293B;
+          --text: #E2E8F0;
+        }
+
+        @media (max-width: 768px) {
+          .login-container {
+            flex-direction: column;
+          }
+
+          .login-right {
+            display: none;
+          }
+
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </div>
   );
-};
-
-const inputStyle = {
-  backgroundColor: '#0F172A',
-  border: '1px solid #334155',
-  color: '#E2E8F0',
-  borderRadius: '8px',
-  padding: '8px'
 };
 
 export default Register;

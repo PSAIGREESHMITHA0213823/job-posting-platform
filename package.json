@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@supabase/supabase-js": "^2.78.0",
     "bootstrap": "^5.3.8",
     "pg": "^8.20.0"
   }
