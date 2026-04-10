@@ -1,6 +1,5 @@
-// src/pages/SuperAdminProfile.jsx
-import React, { useState, useEffect, useCallback } from 'react';
 
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   User, Mail, Lock, Eye, EyeOff, Camera, Save,
   RefreshCw, Shield, Clock, CheckCircle, AlertCircle, Loader, Phone,
@@ -19,14 +18,9 @@ const ACTIVITY_LOG = [
   { action: 'Password changed',              time: '3 days ago',         icon: '🔑' },
 ];
 
-// function toDisplayUrl(url) {
-//   if (!url) return null;
-//   if (url.startsWith('http')) return url;
-//   return `${BASE_URL}${url}`;
-// }
 function toDisplayUrl(url) {
   if (!url) return null;
-  return url; // always a full URL from Supabase
+  return url;
 }
 
 function broadcastUser(updatedUser) {
@@ -35,7 +29,7 @@ function broadcastUser(updatedUser) {
 
 export default function SuperAdminProfile() {
   const { user, setUser } = useAuth();
-console.log('setUser type:', typeof setUser, '| user:', user?.email);
+
   const [profile, setProfile] = useState({
     full_name:  '',
     email:      user?.email || '',
@@ -73,6 +67,15 @@ console.log('setUser type:', typeof setUser, '| user:', user?.email);
           avatar_url: d.avatar_url || '',
         });
         setAvatarDisplay(toDisplayUrl(d.avatar_url));
+
+        // Keep AuthContext + localStorage in sync with latest DB values
+        const updatedUser = {
+          ...user,
+          full_name:  d.full_name  || user?.full_name  || '',
+          avatar_url: d.avatar_url || user?.avatar_url || null,
+        };
+        setUser(updatedUser);
+        broadcastUser(updatedUser);
       }
     } catch {
       setProfile(p => ({ ...p, email: user?.email || '' }));
@@ -148,7 +151,12 @@ console.log('setUser type:', typeof setUser, '| user:', user?.email);
         bio:       profile.bio.trim(),
       });
       if (res.data.success) {
-        const updatedUser = { ...user, full_name: trimmedName, email: profile.email.trim() };
+        const updatedUser = {
+          ...user,
+          full_name:  trimmedName,
+          email:      profile.email.trim(),
+          avatar_url: user?.avatar_url || null, // preserve existing avatar
+        };
         setUser(updatedUser);
         broadcastUser(updatedUser);
         showToast('Profile updated successfully!');
