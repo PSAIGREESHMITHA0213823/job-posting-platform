@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import ChatPage from "./pages/company/ChatPage";
 import './App.css';
 import './styles.css';
 
@@ -116,7 +116,7 @@ function App() {
             <Route path="jobs" element={<CompanyJobs />} />
             <Route path="applications" element={<CompanyApplications />} />
             <Route path="profile" element={<CompanyProfile />} />
-           
+           <Route path="chat" element={<ChatPage />} />
           </Route>
           <Route
             path="/dashboard"

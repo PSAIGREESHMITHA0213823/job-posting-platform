@@ -149,8 +149,10 @@ import {
   CreditCard,
   Sparkles,
   DollarSign,
-  Settings,
+  MessageCircle,
+   Settings,
   Menu,
+  
   X
 } from 'lucide-react';
 
@@ -162,6 +164,7 @@ const employeeNavItems = [
   { path: '/dashboard/interview', icon: 'bi-mic-fill', label: 'AI Interview' },
   { path: '/dashboard/profile', icon: 'bi-person-fill', label: 'My Profile' },
   { path: '/dashboard/notifications', icon: 'bi-bell-fill', label: 'Notifications' },
+  { path: '/dashboard/chat', icon: 'bi-chat-dots-fill', label: 'Chat' }
 ];
 
 const adminNavItems = [
@@ -172,6 +175,15 @@ const adminNavItems = [
   { path: '/admin/subscriptions', name: 'Subscription Plans', icon: <Sparkles size={20} /> },
   { path: '/admin/revenue', name: 'Revenue', icon: <DollarSign size={20} /> },
   { path: '/admin/settings', name: 'Settings', icon: <Settings size={20} /> },
+  { path: '/admin/chat', name: 'Chat', icon: <MessageCircle size={20} /> }
+];
+const companyNavItems = [
+  { path: '/company/dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+  { path: '/company/jobs', name: 'Job Postings', icon: <Building2 size={20} /> },
+  { path: '/company/applications', name: 'Applications', icon: <Users size={20} /> },
+  { path: '/company/chat', name: 'Chat', icon: <MessageCircle size={20} /> },
+
+  { path: '/company/profile', name: 'Company Profile', icon: <Settings size={20} /> },
 ];
 
 const Sidebar = ({ open, onClose, isOpen, toggleSidebar }) => {
@@ -181,7 +193,7 @@ const Sidebar = ({ open, onClose, isOpen, toggleSidebar }) => {
     user?.role === 'super_admin' ||
     user?.role === 'software_owner' ||
     user?.role === 'company_admin';
-
+const isCompanyManager = user?.role === 'company_manager';
   const initials = profile?.full_name
     ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U';
@@ -213,7 +225,34 @@ const Sidebar = ({ open, onClose, isOpen, toggleSidebar }) => {
       </div>
     );
   }
+if (isCompanyManager) {
+  return (
+    <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+      
+      <div className="sidebar-header">
+        <h2 className="logo">{isOpen ? 'Company Panel' : 'CP'}</h2>
+        <button className="toggle-btn" onClick={toggleSidebar}>
+          {isOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
 
+      <nav className="sidebar-nav">
+        {companyNavItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `nav-item ${isActive ? 'active' : ''}`
+            }
+          >
+            <span className="nav-icon">{item.icon}</span>
+            {isOpen && <span className="nav-text">{item.name}</span>}
+          </NavLink>
+        ))}
+      </nav>
+    </div>
+  );
+}
   return (
     <>
       {open && <div className="sidebar-backdrop d-lg-none" onClick={onClose} />}
