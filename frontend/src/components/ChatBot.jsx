@@ -1,19 +1,19 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import WebRTCCall from './WebRTCCall';
 
-const API_BASE   = 'http://localhost:5000/api';
+const API_BASE = 'http://localhost:5000/api';
 const EMOJI_LIST = ['👍','❤️','😂','😮','😢','🙏','🎉','🔥'];
 
-/* ─── THEMES ─── */
 const THEMES = [
-  { id:'indigo',   label:'Indigo',   grad:'linear-gradient(135deg,#6366f1,#818cf8)', bubble:'linear-gradient(135deg,#6366f1,#818cf8)', bg:'#fafbff' },
-  { id:'violet',   label:'Violet',   grad:'linear-gradient(135deg,#7c3aed,#a78bfa)', bubble:'linear-gradient(135deg,#7c3aed,#a78bfa)', bg:'#f5f3ff' },
-  { id:'ocean',    label:'Ocean',    grad:'linear-gradient(135deg,#0284c7,#38bdf8)', bubble:'linear-gradient(135deg,#0284c7,#38bdf8)', bg:'#f0f9ff' },
-  { id:'forest',   label:'Forest',   grad:'linear-gradient(135deg,#16a34a,#4ade80)', bubble:'linear-gradient(135deg,#16a34a,#4ade80)', bg:'#f0fdf4' },
-  { id:'rose',     label:'Rose',     grad:'linear-gradient(135deg,#e11d48,#fb7185)', bubble:'linear-gradient(135deg,#e11d48,#fb7185)', bg:'#fff1f2' },
-  { id:'sunset',   label:'Sunset',   grad:'linear-gradient(135deg,#ea580c,#fb923c)', bubble:'linear-gradient(135deg,#ea580c,#fb923c)', bg:'#fff7ed' },
-  { id:'midnight', label:'Night',    grad:'linear-gradient(135deg,#1e1b4b,#4338ca)', bubble:'linear-gradient(135deg,#4338ca,#6366f1)', bg:'#eef2ff' },
-  { id:'teal',     label:'Teal',     grad:'linear-gradient(135deg,#0d9488,#2dd4bf)', bubble:'linear-gradient(135deg,#0d9488,#2dd4bf)', bg:'#f0fdfa' },
+  { id:'indigo', label:'Indigo', grad:'linear-gradient(135deg,#6366f1,#818cf8)', bubble:'linear-gradient(135deg,#6366f1,#818cf8)', bg:'#fafbff' },
+  { id:'violet', label:'Violet', grad:'linear-gradient(135deg,#7c3aed,#a78bfa)', bubble:'linear-gradient(135deg,#7c3aed,#a78bfa)', bg:'#f5f3ff' },
+  { id:'ocean', label:'Ocean', grad:'linear-gradient(135deg,#0284c7,#38bdf8)', bubble:'linear-gradient(135deg,#0284c7,#38bdf8)', bg:'#f0f9ff' },
+  { id:'forest', label:'Forest', grad:'linear-gradient(135deg,#16a34a,#4ade80)', bubble:'linear-gradient(135deg,#16a34a,#4ade80)', bg:'#f0fdf4' },
+  { id:'rose', label:'Rose', grad:'linear-gradient(135deg,#e11d48,#fb7185)', bubble:'linear-gradient(135deg,#e11d48,#fb7185)', bg:'#fff1f2' },
+  { id:'sunset', label:'Sunset', grad:'linear-gradient(135deg,#ea580c,#fb923c)', bubble:'linear-gradient(135deg,#ea580c,#fb923c)', bg:'#fff7ed' },
+  { id:'midnight', label:'Night', grad:'linear-gradient(135deg,#1e1b4b,#4338ca)', bubble:'linear-gradient(135deg,#4338ca,#6366f1)', bg:'#eef2ff' },
+  { id:'teal', label:'Teal', grad:'linear-gradient(135deg,#0d9488,#2dd4bf)', bubble:'linear-gradient(135deg,#0d9488,#2dd4bf)', bg:'#f0fdfa' },
 ];
 
 const groupReactions = (reactions = []) => {
@@ -38,173 +38,46 @@ const TypingDots = () => (
   </div>
 );
 
-/* ─── OUTGOING CALL MODAL ─── */
-const OutgoingCallModal = ({ type, callId, onEnd, onAccepted, accentGrad }) => {
-  const [seconds, setSeconds] = useState(0);
-  const [status,  setStatus]  = useState('calling');
-  const [muted,   setMuted]   = useState(false);
-
-  useEffect(() => {
-    const t = setInterval(() => setSeconds(s => s + 1), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  // ✅ FIX: correct URL /api/chat/employee/calls/:id/status
-  useEffect(() => {
-    if (status !== 'calling') return;
-    const poll = setInterval(async () => {
-      try {
-        const tkn  = localStorage.getItem('token');
-        const res  = await fetch(`${API_BASE}/chat/employee/calls/${callId}/status`, {
-          headers: { Authorization: `Bearer ${tkn}` },
-        });
-        const data = await res.json();
-        if (data.status === 'accepted') {
-          setStatus('accepted');
-          clearInterval(poll);
-          setTimeout(() => onAccepted && onAccepted(), 800);
-        } else if (data.status === 'declined' || data.status === 'cancelled') {
-          setStatus('declined');
-          clearInterval(poll);
-          setTimeout(() => onEnd(), 2000);
-        }
-      } catch {}
-    }, 2000);
-    return () => clearInterval(poll);
-  }, [callId, status, onEnd, onAccepted]);
-
-  const fmt = s => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
-
-  const statusText = {
-    calling:  `Ringing… ${fmt(seconds)}`,
-    accepted: '✅ Connected!',
-    declined: '❌ Call declined',
-  };
-
-  return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(10,10,15,.6)', backdropFilter:'blur(8px)', zIndex:999999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
-      <div style={{ background:'#14141c', border:'1px solid #2a2a38', borderRadius:'20px', padding:'32px 24px', width:'100%', maxWidth:'320px', display:'flex', flexDirection:'column', alignItems:'center', animation:'cbFadeIn .2s ease', boxShadow:'0 24px 64px rgba(0,0,0,.5)' }}>
-        <div style={{ position:'relative', marginBottom:20 }}>
-          {status === 'calling' && (
-            <>
-              <div style={{ position:'absolute', inset:-12, borderRadius:'50%', border:'2px solid rgba(99,102,241,.3)', animation:'cbRingPulse 1.8s ease-out infinite' }}/>
-              <div style={{ position:'absolute', inset:-24, borderRadius:'50%', border:'2px solid rgba(99,102,241,.15)', animation:'cbRingPulse 1.8s ease-out infinite .5s' }}/>
-            </>
-          )}
-          <div style={{ width:72, height:72, borderRadius:'50%', background: accentGrad || 'linear-gradient(135deg,#6366f1,#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'28px', position:'relative', zIndex:1 }}>
-            {type === 'voice' ? '📞' : '📹'}
-          </div>
-        </div>
-        <div style={{ fontSize:17, fontWeight:700, color:'#f0f0f8', marginBottom:6 }}>
-          {type === 'voice' ? 'Voice Call' : 'Video Call'}
-        </div>
-        <div style={{ fontSize:12, color: status === 'accepted' ? '#4ade80' : status === 'declined' ? '#f87171' : '#8888a8', fontFamily:'monospace', marginBottom:28, textAlign:'center' }}>
-          {statusText[status]}
-        </div>
-        <div style={{ display:'flex', gap:20, alignItems:'center' }}>
-          {status === 'calling' && (
-            <button onClick={() => setMuted(p=>!p)}
-              style={{ width:50, height:50, borderRadius:'50%', border:'1px solid #2a2a38', background: muted ? '#374151' : '#1e1e28', color:'#fff', cursor:'pointer', fontSize:20, display:'flex', alignItems:'center', justifyContent:'center', opacity: muted ? 0.6 : 1 }}>
-              {muted ? '🔇' : '🎤'}
-            </button>
-          )}
-          <button onClick={onEnd}
-            style={{ width:58, height:58, borderRadius:'50%', border:'none', background:'#ef4444', color:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 16px rgba(239,68,68,.4)' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform:'rotate(135deg)' }}>
-              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 011 1.24 2 2 0 013 .06h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L7.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 14.92z"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* ─── ACTIVE CALL MODAL ─── */
-const ActiveCallModal = ({ type, onEnd }) => {
-  const [seconds, setSeconds] = useState(0);
-  const [muted,   setMuted]   = useState(false);
-  const [camOff,  setCamOff]  = useState(false);
-
-  useEffect(() => {
-    const t = setInterval(() => setSeconds(s => s + 1), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const fmt = s => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
-
-  return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(10,10,15,.6)', backdropFilter:'blur(8px)', zIndex:999999, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
-      <div style={{ background:'#14141c', border:'1px solid #2a2a38', borderRadius:'20px', padding:'32px 24px', width:'100%', maxWidth:'320px', display:'flex', flexDirection:'column', alignItems:'center', animation:'cbFadeIn .2s ease', boxShadow:'0 24px 64px rgba(0,0,0,.5)' }}>
-        <div style={{ width:72, height:72, borderRadius:'50%', background:'rgba(74,222,128,.15)', border:'1px solid rgba(74,222,128,.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'28px', marginBottom:14 }}>
-          {type === 'voice' ? '📞' : '📹'}
-        </div>
-        <div style={{ fontSize:17, fontWeight:700, color:'#f0f0f8', marginBottom:4 }}>
-          {type === 'voice' ? 'Voice Call' : 'Video Call'}
-        </div>
-        <div style={{ fontSize:12, color:'#4ade80', fontFamily:'monospace', marginBottom:28 }}>Connected · {fmt(seconds)}</div>
-        <div style={{ display:'flex', gap:20, alignItems:'center' }}>
-          <button onClick={() => setMuted(p=>!p)}
-            style={{ width:50, height:50, borderRadius:'50%', border:'1px solid #2a2a38', background: muted ? '#374151' : '#1e1e28', color:'#fff', cursor:'pointer', fontSize:20, display:'flex', alignItems:'center', justifyContent:'center', opacity: muted ? 0.6 : 1 }}>
-            {muted ? '🔇' : '🎤'}
-          </button>
-          <button onClick={onEnd}
-            style={{ width:58, height:58, borderRadius:'50%', border:'none', background:'#ef4444', color:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 16px rgba(239,68,68,.4)' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform:'rotate(135deg)' }}>
-              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 011 1.24 2 2 0 013 .06h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L7.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 14.92z"/>
-            </svg>
-          </button>
-          {type === 'video' && (
-            <button onClick={() => setCamOff(p=>!p)}
-              style={{ width:50, height:50, borderRadius:'50%', border:'1px solid #2a2a38', background: camOff ? '#374151' : '#1e1e28', color:'#fff', cursor:'pointer', fontSize:20, display:'flex', alignItems:'center', justifyContent:'center', opacity: camOff ? 0.6 : 1 }}>
-              {camOff ? '🚫' : '📷'}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const ChatBot = () => {
-  const [open,        setOpen]        = useState(false);
-  const [mode,        setMode]        = useState('ai');
-  const [messages,    setMessages]    = useState([
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState('ai');
+  const [messages, setMessages] = useState([
     { role:'assistant', content:"Hi there! 👋 I'm your career assistant. Ask me about jobs, applications, or switch to Admin chat!" },
   ]);
-  const [input,       setInput]       = useState('');
-  const [loading,     setLoading]     = useState(false);
-  const [unread,      setUnread]      = useState(0);
-  const [admins,      setAdmins]      = useState([]);
-  const [myUserId,    setMyUserId]    = useState(null);
-  const [hoveredId,   setHoveredId]   = useState(null);
-  const [emojiFor,    setEmojiFor]    = useState(null);
-  const [emojiPos,    setEmojiPos]    = useState({});
-  const [editingId,   setEditingId]   = useState(null);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const [admins, setAdmins] = useState([]);
+  const [myUserId, setMyUserId] = useState(null);
+  const [hoveredId, setHoveredId] = useState(null);
+  const [emojiFor, setEmojiFor] = useState(null);
+  const [emojiPos, setEmojiPos] = useState({});
+  const [editingId, setEditingId] = useState(null);
   const [attachments, setAttachments] = useState([]);
-  const [lightbox,    setLightbox]    = useState(null);
-  const [delModal,    setDelModal]    = useState(null);
-  const [themeId,     setThemeId]     = useState(() => localStorage.getItem('cb_theme') || 'indigo');
-  const [showTheme,   setShowTheme]   = useState(false);
-  const [profilePhoto,   setProfilePhoto]   = useState(null);
+  const [lightbox, setLightbox] = useState(null);
+  const [delModal, setDelModal] = useState(null);
+  const [themeId, setThemeId] = useState(() => localStorage.getItem('cb_theme') || 'indigo');
+  const [showTheme, setShowTheme] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [outgoingCall, setOutgoingCall] = useState(null); // { callId, type }
-  const [activeCall,   setActiveCall]   = useState(null); // { type }
+  const [activeRTCCall, setActiveRTCCall] = useState(null);
 
-  const inEmojiPanel   = useRef(false);
+  const inEmojiPanel = useRef(false);
   const messagesEndRef = useRef(null);
-  const inputRef       = useRef(null);
-  const textareaRef    = useRef(null);
-  const pollRef        = useRef(null);
-  const mutatingRef    = useRef(false);
-  const fileInputRef   = useRef(null);
-  const photoInputRef  = useRef(null);
-  const hoverTimers    = useRef({});
-  const themeRef       = useRef(null);
+  const inputRef = useRef(null);
+  const textareaRef = useRef(null);
+  const pollRef = useRef(null);
+  const callPollRef = useRef(null);
+  const mutatingRef = useRef(false);
+  const fileInputRef = useRef(null);
+  const photoInputRef = useRef(null);
+  const hoverTimers = useRef({});
+  const themeRef = useRef(null);
+  const seenCallIds = useRef(new Set());
 
   const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
 
-  const tkn  = () => localStorage.getItem('token');
+  const tkn = () => localStorage.getItem('token');
   const auth = () => ({ Authorization: `Bearer ${tkn()}` });
 
   useEffect(() => {
@@ -214,11 +87,10 @@ const ChatBot = () => {
     } catch {}
   }, []);
 
-  // ✅ FIX: correct URL /api/chat/employee/profile (not /api/employee/profile)
   useEffect(() => {
     const loadPhoto = async () => {
       try {
-        const res  = await fetch(`${API_BASE}/chat/employee/profile`, { headers: auth() });
+        const res = await fetch(`${API_BASE}/chat/employee/profile`, { headers: auth() });
         const data = await res.json();
         if (data.success && data.photo_url) {
           setProfilePhoto(`http://localhost:5000${data.photo_url}`);
@@ -233,7 +105,7 @@ const ChatBot = () => {
   useEffect(() => {
     const go = async () => {
       try {
-        const res  = await fetch(`${API_BASE}/chat/employee/admins`, { headers: auth() });
+        const res = await fetch(`${API_BASE}/chat/employee/admins`, { headers: auth() });
         const data = await res.json();
         if (data.success) setAdmins(data.data);
       } catch {}
@@ -252,23 +124,48 @@ const ChatBot = () => {
     return () => document.removeEventListener('click', h);
   }, []);
 
+  useEffect(() => {
+    const pollIncoming = async () => {
+      if (activeRTCCall) return;
+      try {
+        const res = await fetch(`${API_BASE}/chat/employee/calls/pending`, { headers: auth() });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && data.call) {
+          const callId = data.call.callId;
+          if (!seenCallIds.current.has(callId)) {
+            seenCallIds.current.add(callId);
+            setActiveRTCCall({
+              callId,
+              type: data.call.type,
+              mode: 'callee',
+              peerEmail: data.call.email || 'Admin',
+            });
+          }
+        }
+      } catch {}
+    };
+    callPollRef.current = setInterval(pollIncoming, 3000);
+    return () => clearInterval(callPollRef.current);
+  }, [activeRTCCall]);
+
   const fetchAdminMessages = useCallback(async (skipCheck = false) => {
     if (!skipCheck && mutatingRef.current) return;
     try {
-      const res  = await fetch(`${API_BASE}/chat/employee/my-thread`, { headers: auth() });
+      const res = await fetch(`${API_BASE}/chat/employee/my-thread`, { headers: auth() });
       const data = await res.json();
       if (!data.success) return;
       setMessages(data.data.map(msg => ({
-        id:          msg.id,
-        role:        String(msg.sender_id) === String(myUserId) ? 'user' : 'assistant',
-        content:     msg.message || '',
-        timestamp:   msg.created_at,
-        deleted:     !!msg.deleted_at,
+        id: msg.id,
+        role: String(msg.sender_id) === String(myUserId) ? 'user' : 'assistant',
+        content: msg.message || '',
+        timestamp: msg.created_at,
+        deleted: !!msg.deleted_at,
         deleted_for: msg.deleted_for,
-        sender_id:   String(msg.sender_id),
-        reactions:   msg.reactions || [],
+        sender_id: String(msg.sender_id),
+        reactions: msg.reactions || [],
         attachments: msg.attachments || [],
-        edited:      !!msg.edited_at,
+        edited: !!msg.edited_at,
       })));
     } catch {}
   }, [myUserId]);
@@ -288,7 +185,6 @@ const ChatBot = () => {
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [open, mode, fetchAdminMessages]);
 
-  // ✅ FIX: correct URL /api/chat/employee/profile/photo
   const handlePhotoChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -296,10 +192,8 @@ const ChatBot = () => {
     try {
       const fd = new FormData();
       fd.append('photo', file);
-      const res  = await fetch(`${API_BASE}/chat/employee/profile/photo`, {
-        method: 'POST',
-        headers: auth(),
-        body: fd,
+      const res = await fetch(`${API_BASE}/chat/employee/profile/photo`, {
+        method: 'POST', headers: auth(), body: fd,
       });
       const data = await res.json();
       if (data.success && data.photo_url) {
@@ -308,11 +202,6 @@ const ChatBot = () => {
     } catch {}
     finally { setUploadingPhoto(false); e.target.value = ''; }
   };
-
-// ─────────────────────────────────────────────────────────────────
-// In ChatBot.jsx, FIND the existing initiateCall function and
-// REPLACE the entire function with this one.
-// ─────────────────────────────────────────────────────────────────
 
   const initiateCall = async (type) => {
     try {
@@ -323,32 +212,17 @@ const ChatBot = () => {
       });
       const data = await res.json();
       if (data.success && data.callId) {
-        setOutgoingCall({ callId: data.callId, type });
+        seenCallIds.current.add(data.callId);
+        setActiveRTCCall({ callId: data.callId, type, mode: 'caller', peerEmail: 'Admin' });
       } else {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `⚠️ ${data.message || 'Could not initiate call. No admin available.'}`,
+          content: `⚠️ ${data.message || 'No admin available.'}`,
         }]);
       }
     } catch {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: '⚠️ Network error. Could not initiate call.',
-      }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Network error.' }]);
     }
-  };
-
-  // ✅ FIX: correct URL /api/chat/employee/calls/:id/cancel
-  const cancelCall = async () => {
-    if (outgoingCall) {
-      try {
-        await fetch(`${API_BASE}/chat/employee/calls/${outgoingCall.callId}/cancel`, {
-          method: 'POST',
-          headers: auth(),
-        });
-      } catch {}
-    }
-    setOutgoingCall(null);
   };
 
   const sendMessage = async () => {
@@ -389,12 +263,12 @@ const ChatBot = () => {
         const fd = new FormData();
         if (text) fd.append('message', text);
         toUpload.forEach(a => fd.append('files', a.file));
-        const res  = await fetch(`${API_BASE}/chat/employee/send`, { method:'POST', headers: auth(), body: fd });
+        const res = await fetch(`${API_BASE}/chat/employee/send`, { method:'POST', headers: auth(), body: fd });
         const data = await res.json();
         if (!data.success) throw new Error(data.message);
         await fetchAdminMessages(true);
       } else {
-        const res  = await fetch(`${API_BASE}/employee/chat`, {
+        const res = await fetch(`${API_BASE}/employee/chat`, {
           method: 'POST',
           headers: { 'Content-Type':'application/json', ...auth() },
           body: JSON.stringify({ messages: [...messages, userMsg].map(m => ({ role:m.role, content:m.content })) }),
@@ -426,7 +300,7 @@ const ChatBot = () => {
   const reactToMessage = async (msgId, emoji) => {
     inEmojiPanel.current = false; setEmojiFor(null); mutatingRef.current = true;
     try {
-      const res  = await fetch(`${API_BASE}/chat/employee/${msgId}/react`, {
+      const res = await fetch(`${API_BASE}/chat/employee/${msgId}/react`, {
         method: 'POST',
         headers: { 'Content-Type':'application/json', ...auth() },
         body: JSON.stringify({ emoji }),
@@ -437,7 +311,7 @@ const ChatBot = () => {
     finally { mutatingRef.current = false; await fetchAdminMessages(true); }
   };
 
-  const startEdit  = (msg) => { setEditingId(msg.id); setInput(msg.content); setTimeout(() => inputRef.current?.focus(), 50); };
+  const startEdit = (msg) => { setEditingId(msg.id); setInput(msg.content); setTimeout(() => inputRef.current?.focus(), 50); };
   const cancelEdit = () => { setEditingId(null); setInput(''); if (textareaRef.current) textareaRef.current.style.height = 'auto'; };
 
   const handleKey = e => {
@@ -500,7 +374,6 @@ const ChatBot = () => {
 @keyframes chatSlideUp{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes pulse-ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.5);opacity:0}}
 @keyframes cbFadeIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-@keyframes cbRingPulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.7);opacity:0}}
 .cb-input{resize:none;outline:none;border:none;background:transparent;width:100%;font-size:.875rem;color:#1e293b;font-family:inherit;line-height:1.5}
 .cb-input::placeholder{color:#94a3b8}
 .cb-send{border:none;cursor:pointer;transition:all .18s}
@@ -570,18 +443,17 @@ const ChatBot = () => {
 
       {lightbox && <div className="cb-lightbox" onClick={() => setLightbox(null)}><img src={lightbox} alt="preview"/></div>}
 
-      {outgoingCall && !activeCall && (
-        <OutgoingCallModal
-          type={outgoingCall.type}
-          callId={outgoingCall.callId}
-          accentGrad={theme.grad}
-          onEnd={cancelCall}
-          onAccepted={() => { setActiveCall({ type: outgoingCall.type }); setOutgoingCall(null); }}
+      {activeRTCCall && (
+        <WebRTCCall
+          mode={activeRTCCall.mode}
+          callId={activeRTCCall.callId}
+          callType={activeRTCCall.type}
+          token={localStorage.getItem('token')}
+          apiBase="http://localhost:5000/api"
+          myRole="employee"
+          peerEmail={activeRTCCall.peerEmail}
+          onEnd={() => setActiveRTCCall(null)}
         />
-      )}
-
-      {activeCall && (
-        <ActiveCallModal type={activeCall.type} onEnd={() => setActiveCall(null)} />
       )}
 
       {delModal && (
@@ -590,8 +462,8 @@ const ChatBot = () => {
             <div className="cb-del-title">Delete this message?</div>
             <div className="cb-del-sub">Choose how to delete it. Deleting for everyone cannot be undone.</div>
             <div className="cb-del-btns">
-              <button className="cb-del-btn all"  onClick={() => deleteForAll(delModal.msgId)}>🌐 Delete for everyone</button>
-              <button className="cb-del-btn me"   onClick={() => deleteForMe(delModal.msgId)}>👤 Delete for me only</button>
+              <button className="cb-del-btn all" onClick={() => deleteForAll(delModal.msgId)}>🌐 Delete for everyone</button>
+              <button className="cb-del-btn me" onClick={() => deleteForMe(delModal.msgId)}>👤 Delete for me only</button>
               <button className="cb-del-btn cncl" onClick={() => setDelModal(null)}>Cancel</button>
             </div>
           </div>
@@ -608,19 +480,15 @@ const ChatBot = () => {
         </div>
       )}
 
-      {/* Hidden file inputs */}
       <input ref={photoInputRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handlePhotoChange} />
-      <input ref={fileInputRef}  type="file" multiple style={{ display:'none' }} onChange={handleFileChange} />
+      <input ref={fileInputRef} type="file" multiple style={{ display:'none' }} onChange={handleFileChange} />
 
       {open && (
         <div className="cb-win" style={{ position:'fixed', bottom:'88px', right:'24px', width:'370px', maxHeight:'600px', background:'#fff', borderRadius:'20px', boxShadow:'0 24px 64px rgba(0,0,0,.15)', display:'flex', flexDirection:'column', zIndex:9999, overflow:'visible', animation:'chatSlideUp .25s ease', border:'1px solid #e2e8f0' }}>
 
-          {/* HEADER */}
           <div style={{ background: theme.grad, padding:'14px 18px', flexShrink:0, borderRadius:'20px 20px 0 0' }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'10px' }}>
               <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-
-                {/* ✅ FIX: Profile photo upload — clicking opens file picker */}
                 <div className="cb-photo-ring" onClick={() => photoInputRef.current?.click()} title="Change profile photo">
                   {profilePhoto
                     ? <img src={profilePhoto} alt="me" style={{ width:40, height:40, borderRadius:'50%', objectFit:'cover' }} />
@@ -630,7 +498,6 @@ const ChatBot = () => {
                   }
                   <div className="cb-photo-overlay">{uploadingPhoto ? '⏳' : '📷'}</div>
                 </div>
-
                 <div>
                   <div style={{ color:'#fff', fontWeight:'700', fontSize:'.9rem', lineHeight:1 }}>
                     {mode === 'admin' ? 'Admin Support' : 'Career Assistant'}
@@ -643,7 +510,6 @@ const ChatBot = () => {
               </div>
 
               <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
-                {/* ✅ FIX: Call buttons now call initiateCall() which hits correct URL */}
                 {mode === 'admin' && (
                   <>
                     <button className="cb-hdr-btn" title="Voice call" onClick={() => initiateCall('voice')}>
@@ -694,7 +560,6 @@ const ChatBot = () => {
             </div>
           </div>
 
-          {/* MESSAGES */}
           <div className="cb-scroll" style={{ flex:1, overflowY:'auto', padding:'16px', display:'flex', flexDirection:'column', gap:'12px', background: theme.bg, minHeight:0 }}>
             {mode === 'admin' && messages.length === 0 && !loading && (
               <div style={{ textAlign:'center', color:'#94a3b8', fontSize:'.8rem', marginTop:'20px' }}>
@@ -704,21 +569,20 @@ const ChatBot = () => {
             )}
 
             {messages.map((msg, i) => {
-              const isUser     = msg.role === 'user';
-              const grouped    = groupReactions(msg.reactions);
-              const hasReact   = Object.keys(grouped).length > 0;
-              const msgKey     = msg.id || i;
-              const showActs   = mode === 'admin' && msg.id && !isVisiblyDeleted(msg) && hoveredId === msgKey;
-              const files      = msg.attachments || [];
+              const isUser = msg.role === 'user';
+              const grouped = groupReactions(msg.reactions);
+              const hasReact = Object.keys(grouped).length > 0;
+              const msgKey = msg.id || i;
+              const showActs = mode === 'admin' && msg.id && !isVisiblyDeleted(msg) && hoveredId === msgKey;
+              const files = msg.attachments || [];
               const visDeleted = isVisiblyDeleted(msg);
-              const content    = getMessageContent(msg);
+              const content = getMessageContent(msg);
 
               return (
                 <div key={msgKey}
                   style={{ display:'flex', flexDirection:'column', alignItems: isUser ? 'flex-end' : 'flex-start' }}
                   onMouseEnter={() => msgEnter(msgKey)}
-                  onMouseLeave={() => msgLeave(msgKey)}
-                >
+                  onMouseLeave={() => msgLeave(msgKey)}>
                   <div style={{ display:'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', gap:'8px', alignItems:'flex-end', width:'100%', position:'relative' }}>
                     {!isUser && (
                       <div style={{ width:'26px', height:'26px', borderRadius:'50%', background:'#ede9fe', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'.8rem', flexShrink:0 }}>
@@ -780,7 +644,6 @@ const ChatBot = () => {
                       </div>
                     </div>
 
-                    {/* ✅ Shows profile photo next to user messages */}
                     {isUser && <UserAvatar size={26} />}
                   </div>
 
@@ -838,7 +701,6 @@ const ChatBot = () => {
             </div>
           )}
 
-          {/* INPUT */}
           <div style={{ padding:'12px 14px', borderTop:'1px solid #f1f5f9', display:'flex', alignItems:'flex-end', gap:'8px', background:'#fff', flexShrink:0, borderRadius:'0 0 20px 20px' }}>
             {mode === 'admin' && (
               <button onClick={() => fileInputRef.current?.click()} title="Attach file"
@@ -875,7 +737,6 @@ const ChatBot = () => {
         </div>
       )}
 
-      {/* FAB */}
       <button className="cb-fab" onClick={() => setOpen(o => !o)} style={{ position:'fixed', bottom:'24px', right:'24px', width:'56px', height:'56px', borderRadius:'50%', background: open ? '#475569' : theme.grad, color:'#fff', border:'none', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10000, boxShadow:'0 8px 24px rgba(99,102,241,.35)' }}>
         {!open && <span style={{ position:'absolute', width:'100%', height:'100%', borderRadius:'50%', border:'2px solid #6366f1', animation:'pulse-ring 2s ease-out infinite' }}/>}
         {open

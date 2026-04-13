@@ -8,7 +8,8 @@ const chatHandler = require('./chat.route') // ← plain async function, not a r
 router.use(auth)
 router.use(requireRole('employee'))
 
-
+// In your main routes/employee/index.js or app.js
+router.use('/interview', require('./interview.route'))
 router.get('/profile', ctrl.getProfile)
 router.put('/profile', uploadProfileFiles, ctrl.updateProfile)
 

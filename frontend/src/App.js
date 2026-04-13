@@ -26,6 +26,7 @@ import CompanyJobs from './pages/company/CompanyJobs';
 import CompanyApplications from './pages/company/CompanyApplications';
 import CompanyProfile from './pages/company/CompanyProfile';
 
+
 import DashboardLayout from './pages/DashboardLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -33,6 +34,7 @@ import Overview from './pages/Overview';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import Applications from './pages/Applications';
+import Interview from './pages/Interview';
 import SavedJobs from './pages/SavedJobs';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
@@ -95,7 +97,6 @@ function App() {
             <Route path="revenue" element={<Revenue />} />
             <Route path="profile" element={<SuperAdminProfile />} />
             <Route path="settings" element={<Settings />} />
-
             <Route path="chat" element={<AdminChat />} />
            
           </Route>
@@ -115,7 +116,7 @@ function App() {
             <Route path="jobs" element={<CompanyJobs />} />
             <Route path="applications" element={<CompanyApplications />} />
             <Route path="profile" element={<CompanyProfile />} />
-            
+           
           </Route>
           <Route
             path="/dashboard"
@@ -130,6 +131,7 @@ function App() {
             <Route path="jobs/:id" element={<JobDetail />} />
             <Route path="applications" element={<Applications />} />
             <Route path="saved" element={<SavedJobs />} />
+             <Route path="interview" element={<Interview />} />
             <Route path="profile" element={<Profile />} />
             <Route path="notifications" element={<Notifications />} />
           </Route>

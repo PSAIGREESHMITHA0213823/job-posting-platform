@@ -1,174 +1,4 @@
 
-// const router = require('express').Router();
-// const path   = require('path');
-// const fs     = require('fs');
-// const multer = require('multer');
-// const { auth, requireRole } = require('../../middleware/auth');
-// const ctrl = require('../../controllers/chat/chat.controller');
-
-// // ─── Multer storage for chat files ────────────────────────────────────────────
-// const uploadDir = path.join(__dirname, '../../uploads/chat');
-// if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-// const storage = multer.diskStorage({
-//   destination: (_req, _file, cb) => cb(null, uploadDir),
-//   filename:    (_req, file, cb) => {
-//     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-//     cb(null, unique + path.extname(file.originalname));
-//   },
-// });
-
-// const upload = multer({
-//   storage,
-//   limits: { fileSize: 10 * 1024 * 1024 },  // 10 MB per file
-//   fileFilter: (_req, file, cb) => {
-//     const allowed = /jpeg|jpg|png|gif|webp|pdf|doc|docx|xls|xlsx|txt|csv|zip/;
-//     const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
-//     if (allowed.test(ext)) cb(null, true);
-//     else cb(new Error('File type not allowed'));
-//   },
-// });
-
-// // ─── Multer storage for profile photos ───────────────────────────────────────
-// const photoDir = path.join(__dirname, '../../uploads/photos');
-// if (!fs.existsSync(photoDir)) fs.mkdirSync(photoDir, { recursive: true });
-
-// const photoStorage = multer.diskStorage({
-//   destination: (_req, _file, cb) => cb(null, photoDir),
-//   filename: (req, file, cb) => {
-//     const ext = path.extname(file.originalname);
-//     cb(null, `user_${req.userId}${ext}`);
-//   },
-// });
-// const uploadPhoto = multer({
-//   storage: photoStorage,
-//   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
-// });
-
-// // ─── Auth ─────────────────────────────────────────────────────────────────────
-// router.use(auth);
-// router.use(requireRole('admin'));
-
-// // ─── Chat Routes ──────────────────────────────────────────────────────────────
-// router.get('/users',              ctrl.getAllEmployeeChats);            // GET    /api/chat/admin/users
-// router.post('/send',              upload.array('files', 5), ctrl.sendMessage); // POST /api/chat/admin/send
-// router.put('/:id',                ctrl.editMessage);                   // PUT    /api/chat/admin/:id
-// router.delete('/:id',             ctrl.deleteMessage);                 // DELETE /api/chat/admin/:id
-// router.post('/:id/delete-for-me', ctrl.deleteForMe);                   // POST   /api/chat/admin/:id/delete-for-me
-// router.post('/:id/react',         ctrl.reactToMessage);                // POST   /api/chat/admin/:id/react
-// router.get('/:userId',            ctrl.getMessages);                   // GET    /api/chat/admin/:userId
-
-// // ─── Call Signalling Routes ───────────────────────────────────────────────────
-
-// /**
-//  * GET /api/chat/admin/calls/pending
-//  * Admin polls this to detect an incoming call meant for them.
-//  * Returns the oldest pending call where receiver_id = current admin.
-//  */
-// router.get('/calls/pending', async (req, res) => {
-//   try {
-//     const [rows] = await db.query(
-//       `SELECT c.id AS callId, c.type, c.caller_id AS userId,
-//               u.email, u.photo_url AS photoUrl
-//        FROM calls c
-//        JOIN users u ON u.id = c.caller_id
-//        WHERE c.receiver_id = ? AND c.status = 'pending'
-//        ORDER BY c.created_at ASC
-//        LIMIT 1`,
-//       [req.userId]
-//     );
-//     if (rows.length === 0) return res.json({ success: true, call: null });
-//     res.json({ success: true, call: rows[0] });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// });
-
-// /**
-//  * POST /api/chat/admin/calls/:id/accept
-//  * Admin accepts an incoming call.
-//  */
-// router.post('/calls/:id/accept', async (req, res) => {
-//   try {
-//     await db.query(
-//       `UPDATE calls SET status = 'accepted' WHERE id = ? AND receiver_id = ?`,
-//       [req.params.id, req.userId]
-//     );
-//     res.json({ success: true });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// });
-
-// /**
-//  * POST /api/chat/admin/calls/:id/decline
-//  * Admin declines an incoming call.
-//  */
-// router.post('/calls/:id/decline', async (req, res) => {
-//   try {
-//     await db.query(
-//       `UPDATE calls SET status = 'declined' WHERE id = ? AND receiver_id = ?`,
-//       [req.params.id, req.userId]
-//     );
-//     res.json({ success: true });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// });
-
-// /**
-//  * POST /api/chat/admin/calls/:id/cancel
-//  * Admin cancels a call they initiated before it was answered.
-//  */
-// router.post('/calls/:id/cancel', async (req, res) => {
-//   try {
-//     await db.query(
-//       `UPDATE calls SET status = 'cancelled' WHERE id = ? AND caller_id = ?`,
-//       [req.params.id, req.userId]
-//     );
-//     res.json({ success: true });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// });
-
-// /**
-//  * GET /api/chat/admin/calls/:id/status
-//  * Admin (as caller) polls to see if call was accepted/declined.
-//  */
-// router.get('/calls/:id/status', async (req, res) => {
-//   try {
-//     const [rows] = await db.query(
-//       `SELECT status FROM calls WHERE id = ? AND caller_id = ?`,
-//       [req.params.id, req.userId]
-//     );
-//     if (!rows.length) return res.status(404).json({ success: false });
-//     res.json({ success: true, status: rows[0].status });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// });
-
-// /**
-//  * POST /api/chat/admin/calls/initiate
-//  * Admin initiates a call to an employee.
-//  * Body: { receiver_id: number, type: 'voice' | 'video' }
-//  */
-// router.post('/calls/initiate', async (req, res) => {
-//   try {
-//     const { receiver_id, type } = req.body;
-//     const call = await db.query(
-//       `INSERT INTO calls (caller_id, receiver_id, type, status, created_at)
-//        VALUES (?, ?, ?, 'pending', NOW())`,
-//       [req.userId, receiver_id, type]
-//     );
-//     res.json({ success: true, callId: call.insertId });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// });
-
-// module.exports = router;
 const router = require('express').Router();
 const path   = require('path');
 const fs     = require('fs');
@@ -293,7 +123,90 @@ router.get('/calls/:id/status', async (req, res) => {
     res.json({ success: true, status: result.rows[0].status });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD THESE ROUTES to BOTH chat.admin.routes.js and chat.employee.routes.js
+// Place them alongside the other /calls/* routes (before /:userId)
+// ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * POST /calls/:id/offer
+ * Caller saves their WebRTC offer SDP
+ */
+router.post('/calls/:id/offer', async (req, res) => {
+  const uid = getUid(req);
+  if (!uid) return res.status(401).json({ success: false });
+  try {
+    const { offer } = req.body;
+    await db.query(
+      `UPDATE calls SET offer = $1, updated_at = NOW() WHERE id::TEXT = $2 AND caller_id::TEXT = $3`,
+      [JSON.stringify(offer), req.params.id, uid]
+    );
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+/**
+ * POST /calls/:id/answer
+ * Callee saves their WebRTC answer SDP
+ */
+router.post('/calls/:id/answer', async (req, res) => {
+  const uid = getUid(req);
+  if (!uid) return res.status(401).json({ success: false });
+  try {
+    const { answer } = req.body;
+    await db.query(
+      `UPDATE calls SET answer = $1, status = 'accepted', updated_at = NOW()
+       WHERE id::TEXT = $2 AND receiver_id::TEXT = $3`,
+      [JSON.stringify(answer), req.params.id, uid]
+    );
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+/**
+ * POST /calls/:id/ice
+ * Either side adds ICE candidates
+ * Body: { candidate, role: 'caller' | 'callee' }
+ */
+router.post('/calls/:id/ice', async (req, res) => {
+  const uid = getUid(req);
+  if (!uid) return res.status(401).json({ success: false });
+  try {
+    const { candidate, role } = req.body;
+    const col = role === 'caller' ? 'caller_ice' : 'callee_ice';
+    await db.query(
+      `UPDATE calls SET ${col} = ${col} || $1::jsonb, updated_at = NOW()
+       WHERE id::TEXT = $2`,
+      [JSON.stringify([candidate]), req.params.id]
+    );
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+/**
+ * GET /calls/:id/signal
+ * Poll for the full signal state (offer, answer, ICE candidates)
+ */
+router.get('/calls/:id/signal', async (req, res) => {
+  const uid = getUid(req);
+  if (!uid) return res.status(401).json({ success: false });
+  try {
+    const result = await db.query(
+      `SELECT status, offer, answer, caller_ice, callee_ice FROM calls WHERE id::TEXT = $1`,
+      [req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ success: false });
+    const row = result.rows[0];
+    res.json({
+      success: true,
+      status:     row.status,
+      offer:      row.offer      ? JSON.parse(row.offer)  : null,
+      answer:     row.answer     ? JSON.parse(row.answer) : null,
+      callerIce:  row.caller_ice || [],
+      calleeIce:  row.callee_ice || [],
+    });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
 // ── Chat routes — /:userId LAST ───────────────────────────────────────────────
 router.get('/users',              ctrl.getAllEmployeeChats);
 router.post('/send',              upload.array('files', 5), ctrl.sendMessage);
