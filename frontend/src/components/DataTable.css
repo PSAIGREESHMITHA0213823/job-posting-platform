@@ -1,0 +1,134 @@
+/* ── DataTable ──────────────────────────────────────────────── */
+.dt-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg1);
+}
+
+.dt-th {
+  padding: 11px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--text3);
+  font-family: var(--mono);
+  white-space: nowrap;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.dt-tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+
+.dt-tr:last-child {
+  border-bottom: none;
+}
+
+.dt-tr:hover {
+  background: rgba(255, 255, 255, .025);
+}
+
+.dt-td {
+  padding: 11px 16px;
+  font-size: 13px;
+  color: var(--text2);
+  vertical-align: middle;
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: transparent;
+}
+
+/* ── DataTable Footer ───────────────────────────────────────── */
+.dt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg1);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dt-page-info {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: var(--mono);
+}
+
+/* ── Pagination ─────────────────────────────────────────────── */
+.dt-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dt-pg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font-size: 13px;
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: all .15s;
+  line-height: 1;
+}
+
+.dt-pg-btn:hover:not(:disabled) {
+  background: var(--bg3);
+  color: var(--text);
+  border-color: var(--text3);
+}
+
+.dt-pg-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(124, 107, 255, .3);
+}
+
+.dt-pg-btn:disabled {
+  opacity: .3;
+  cursor: not-allowed;
+}
+
+.dt-pg-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  font-size: 13px;
+  color: var(--text3);
+  font-family: var(--mono);
+  user-select: none;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .dt-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dt-pg-btn {
+    min-width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}
