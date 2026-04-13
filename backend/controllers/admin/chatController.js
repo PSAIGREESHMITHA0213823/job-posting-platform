@@ -1,6 +1,4 @@
 const db = require("../../config/db");
-
-// get all users (admin can see everyone)
 exports.getAllUsers = async (req, res) => {
   try {
     const result = await db.query(
@@ -14,8 +12,6 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-// get messages
 exports.getMessages = async (req, res) => {
   try {
     const senderId = req.user.id;
@@ -34,8 +30,6 @@ exports.getMessages = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-// send message
 exports.sendMessage = async (req, res) => {
   try {
     const senderId = req.user.id;

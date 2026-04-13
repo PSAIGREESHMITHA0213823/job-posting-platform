@@ -3,7 +3,6 @@ exports.getMessages = async (req, res) => {
   try {
     const senderId = req.user.id;
     const receiverId = req.params.receiverId;
-
     const result = await db.query(
       `SELECT * FROM messages
        WHERE (sender_id=$1 AND receiver_id=$2)
@@ -21,7 +20,6 @@ exports.sendMessage = async (req, res) => {
   try {
     const senderId = req.user.id;
     const { receiver_id, content } = req.body;
-
     const result = await db.query(
       `INSERT INTO messages(sender_id, receiver_id, content)
        VALUES($1,$2,$3) RETURNING *`,

@@ -1,6 +1,4 @@
 const db = require("../../config/db");
-
-// 🔹 get all company users
 exports.getCompanyUsers = async (req, res) => {
   try {
     const companyId = req.user.company_id;
