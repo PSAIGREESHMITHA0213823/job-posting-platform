@@ -6,8 +6,7 @@ exports.getAllUsers = async (req, res) => {
        FROM users 
        ORDER BY full_name`
     );
-
-    res.json(result.rows);
+  res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

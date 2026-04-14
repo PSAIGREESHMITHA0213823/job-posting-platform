@@ -1,48 +1,48 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import ChatPage from "./pages/company/ChatPage";
 import './App.css';
 import './styles.css';
 
-
 import { AuthProvider, useAuth } from './context/AuthContext';
-import LoadingSpinner from './components/LoadingSpinner';
+import { CompanyProvider }        from './context/CompanyContext';
+import LoadingSpinner              from './components/LoadingSpinner';
 
-import AdminLayout from './layouts/AdminLayouts';
-import Dashboard from './pages/Dashboard';
-import Companies from './pages/Companies';
-import Users from './pages/Users';
-import Payments from './pages/Payments';
-import SubscriptionPlans from './pages/SubscriptionPlans';
-import Revenue from './pages/Revenue';
-import Settings from './pages/Settings';
-import SuperAdminProfile from './pages/SuperAdminProfile';
+// ── Admin ─────────────────────────────────────────────────────────────────────
+import AdminLayout        from './layouts/AdminLayouts';
+import Dashboard          from './pages/Dashboard';
+import Companies          from './pages/Companies';
+import Users              from './pages/Users';
+import Payments           from './pages/Payments';
+import SubscriptionPlans  from './pages/SubscriptionPlans';
+import Revenue            from './pages/Revenue';
+import Settings           from './pages/Settings';
+import SuperAdminProfile  from './pages/SuperAdminProfile';
+import AdminChat          from './components/AdminChat';
 
-import CompanyLayout from './layouts/CompanyLayout';
-import CompanyDashboard from './pages/company/CompanyDashboard';
-import CompanyJobs from './pages/company/CompanyJobs';
+// ── Company ───────────────────────────────────────────────────────────────────
+import CompanyLayout      from './layouts/CompanyLayout';
+import CompanyDashboard   from './pages/company/CompanyDashboard';
+import CompanyJobs        from './pages/company/CompanyJobs';
 import CompanyApplications from './pages/company/CompanyApplications';
-import CompanyProfile from './pages/company/CompanyProfile';
+import CompanyProfile     from './pages/company/CompanyProfile';
+import ChatPage           from './pages/company/ChatPage';   // shared across all roles
 
+// ── Employee ──────────────────────────────────────────────────────────────────
+import DashboardLayout    from './pages/DashboardLayout';
+import Login              from './pages/Login';
+import Register           from './pages/Register';
+import Overview           from './pages/Overview';
+import Jobs               from './pages/Jobs';
+import JobDetail          from './pages/JobDetail';
+import Applications       from './pages/Applications';
+import Interview          from './pages/Interview';
+import SavedJobs          from './pages/SavedJobs';
+import Profile            from './pages/Profile';
+import Notifications      from './pages/Notifications';
+import Home               from './landing-page-componets/Home';
 
-import DashboardLayout from './pages/DashboardLayout';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Overview from './pages/Overview';
-import Jobs from './pages/Jobs';
-import JobDetail from './pages/JobDetail';
-import Applications from './pages/Applications';
-import Interview from './pages/Interview';
-import SavedJobs from './pages/SavedJobs';
-import Profile from './pages/Profile';
-import Notifications from './pages/Notifications';
-import Home from './landing-page-componets/Home';
-import { CompanyProvider } from './context/CompanyContext';
-import AdminChat from './components/AdminChat';
-
-
+// ── Route guards ──────────────────────────────────────────────────────────────
 const Spinner = () => (
   <div className="d-flex align-items-center justify-content-center vh-100">
     <LoadingSpinner />
@@ -52,7 +52,7 @@ const Spinner = () => (
 const PrivateRoute = ({ children, role }) => {
   const { user, loading } = useAuth();
   if (loading) return <Spinner />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user)   return <Navigate to="/login" replace />;
   if (role && user.role !== role) return <Navigate to="/login" replace />;
   return children;
 };
@@ -62,84 +62,83 @@ const PublicRoute = ({ children }) => {
   if (loading) return <Spinner />;
   if (user) {
     const dest =
-      user.role === 'admin'
-        ? '/admin/dashboard'
-        : user.role === 'company_manager'
-        ? '/company/dashboard'
-        : '/dashboard';
+      user.role === 'admin'           ? '/admin/dashboard'   :
+      user.role === 'company_manager' ? '/company/dashboard' :
+                                        '/dashboard';
     return <Navigate to={dest} replace />;
   }
   return children;
 };
+
+// ── App ───────────────────────────────────────────────────────────────────────
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+
+          {/* Public */}
+          <Route path="/"         element={<PublicRoute><Home /></PublicRoute>} />
+          <Route path="/login"    element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+
+          {/* ── Admin ── */}
           <Route
             path="/admin"
-            element={
-              <PrivateRoute role="admin">
-                <AdminLayout />
-              </PrivateRoute>
-            }
+            element={<PrivateRoute role="admin"><AdminLayout /></PrivateRoute>}
           >
-            
-            <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="companies" element={<Companies />} />
-            <Route path="users" element={<Users />} />
-            <Route path="payments" element={<Payments />} />
+            <Route index                element={<Dashboard />} />
+            <Route path="dashboard"     element={<Dashboard />} />
+            <Route path="companies"     element={<Companies />} />
+            <Route path="users"         element={<Users />} />
+            <Route path="payments"      element={<Payments />} />
             <Route path="subscriptions" element={<SubscriptionPlans />} />
-            <Route path="revenue" element={<Revenue />} />
-            <Route path="profile" element={<SuperAdminProfile />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="chat" element={<AdminChat />} />
-           
+            <Route path="revenue"       element={<Revenue />} />
+            <Route path="profile"       element={<SuperAdminProfile />} />
+            <Route path="settings"      element={<Settings />} />
+            <Route path="chat"          element={<AdminChat />} />
+            <Route path="direct-chat"   element={<ChatPage />} /> {/* ← NEW */}
           </Route>
+
+          {/* ── Company Manager ── */}
           <Route
             path="/company"
             element={
               <PrivateRoute role="company_manager">
                 <CompanyProvider>
-                <CompanyLayout />
+                  <CompanyLayout />
                 </CompanyProvider>
-                
               </PrivateRoute>
             }
           >
-            <Route index element={<CompanyDashboard />} />
-            <Route path="dashboard" element={<CompanyDashboard />} />
-            <Route path="jobs" element={<CompanyJobs />} />
-            <Route path="applications" element={<CompanyApplications />} />
-            <Route path="profile" element={<CompanyProfile />} />
-           <Route path="chat" element={<ChatPage />} />
+            <Route index                element={<CompanyDashboard />} />
+            <Route path="dashboard"     element={<CompanyDashboard />} />
+            <Route path="jobs"          element={<CompanyJobs />} />
+            <Route path="applications"  element={<CompanyApplications />} />
+            <Route path="profile"       element={<CompanyProfile />} />
+            <Route path="chat"          element={<ChatPage />} /> {/* ← NEW */}
           </Route>
+
+          {/* ── Employee ── */}
           <Route
             path="/dashboard"
-            element={
-              <PrivateRoute role="employee">
-                <DashboardLayout />
-              </PrivateRoute>
-            }
+            element={<PrivateRoute role="employee"><DashboardLayout /></PrivateRoute>}
           >
-            <Route index element={<Overview />} />
-            <Route path="jobs" element={<Jobs />} />
-            <Route path="jobs/:id" element={<JobDetail />} />
-            <Route path="applications" element={<Applications />} />
-            <Route path="saved" element={<SavedJobs />} />
-             <Route path="interview" element={<Interview />} />
-            <Route path="profile" element={<Profile />} />
+            <Route index                element={<Overview />} />
+            <Route path="jobs"          element={<Jobs />} />
+            <Route path="jobs/:id"      element={<JobDetail />} />
+            <Route path="applications"  element={<Applications />} />
+            <Route path="saved"         element={<SavedJobs />} />
+            <Route path="interview"     element={<Interview />} />
+            <Route path="profile"       element={<Profile />} />
             <Route path="notifications" element={<Notifications />} />
+            <Route path="chat"          element={<ChatPage />} /> {/* ← NEW */}
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
 
-    
-       
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   );

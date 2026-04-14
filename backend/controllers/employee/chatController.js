@@ -1,6 +1,5 @@
 const db = require("../../config/db");
 
-// get messages
 exports.getMessages = async (req, res) => {
   try {
     const senderId = req.user.id;
@@ -20,7 +19,6 @@ exports.getMessages = async (req, res) => {
   }
 };
 
-// send message
 exports.sendMessage = async (req, res) => {
   try {
     const senderId = req.user.id;
@@ -32,7 +30,14 @@ exports.sendMessage = async (req, res) => {
       [senderId, receiver_id, content]
     );
 
-    res.json(result.rows[0]);
+    const message = result.rows[0];
+
+    // ✅ emit real-time message
+    if (io) {
+      io.emit("receiveMessage", message);
+    }
+
+    res.json(message);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

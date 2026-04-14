@@ -1,9 +1,6 @@
-const router = require("express").Router();
 const db = require("../../config/db");
-const { auth } = require("../../middleware/auth");
-const ctrl = require("../../controllers/employee/usersController");
 
-router.get("/users", auth, async (req, res) => {
+exports.getUsers = async (req, res) => {
   try {
     const companyId = req.user.company_id;
 
@@ -18,6 +15,4 @@ router.get("/users", auth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
-
-module.exports = router;
+};
