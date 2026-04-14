@@ -42,11 +42,16 @@ app.use('/api/company/users', require('./routes/company/users'))
 app.use('/api/company/chat',  require('./routes/company/chat'))
 app.use('/api/admin/chat',    require('./routes/admin/chat'))
 
-// ── NEW: group chat file upload ──────────────────────────────────────────────
-app.use('/api/groupchat',   require('./routes/chat/groupChat.routes'))
+// ── REMOVED: group chat file upload (now handled in directChat.routes) ──────
+// app.use('/api/groupchat',   require('./routes/chat/groupChat.routes'))
 
-// ── NEW: direct messages API ─────────────────────────────────────────────────
+// ── NEW: direct messages + group chat API (unified) ─────────────────────────
 app.use('/api/direct-chat', require('./routes/chat/directChat.routes'))
+
+// ── FIX: unified /api/users route for ChatPage (direct messages sidebar) ─────
+// This exposes the same company/users data at /api/users so ChatPage can
+// fetch all users regardless of the logged-in role (admin / company / employee)
+app.use('/api/users', require('./routes/company/users'))
 
 app.use((err, req, res, next) => {
   console.error(err.stack)
@@ -100,10 +105,14 @@ io.on('connection', (socket) => {
   })
 
   // ── NEW: group chat ────────────────────────────────────────────────────────
-  setupGroupChat(socket, io, db)
+  if (setupGroupChat) {
+    setupGroupChat(socket, io, db, onlineUsers)
+  }
 
   // ── NEW: direct messages ───────────────────────────────────────────────────
-  setupDirectChat(socket, io, db, onlineUsers)
+  if (setupDirectChat) {
+    setupDirectChat(socket, io, db, onlineUsers)
+  }
 
   socket.on('disconnect', () => {
     for (let userId in onlineUsers) {
